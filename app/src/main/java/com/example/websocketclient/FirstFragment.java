@@ -12,11 +12,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.websocketclient.databinding.FragmentFirstBinding;
-import com.example.websocketclient.websocketclient.FloatingWidgetShowService;
 import com.example.websocketclient.websocketclient.GamepadWebSocketClient;
+import com.example.websocketclient.websocketclient.service.FloatingViewService;
+import com.example.websocketclient.websocketclient.service.FloatingWidgetShowService;
+import com.example.websocketclient.websocketclient.service.FloatingWindowService;
 
 public class FirstFragment extends Fragment {
 
@@ -41,20 +42,9 @@ public class FirstFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 binding.buttonFirst.setText("Starting...");
-                binding.textviewFirst.setText("");
+                //binding.editTextTextMultiLine.setText("");
                 gamepadWebSocketClient = new GamepadWebSocketClient(binding);
                 gamepadWebSocketClient.createWebSocketClient();
-
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                    getActivity().startService(new Intent(getContext(), FloatingWidgetShowService.class));
-                    //getActivity().finish();
-                } else if (Settings.canDrawOverlays(getContext())) {
-                    getActivity().startService(new Intent(getContext(), FloatingWidgetShowService.class));
-                    //getActivity().finish();
-                } else {
-                    RuntimePermissionForUser();
-                    Toast.makeText(getContext(), "System Alert Window Permission Is Required For Floating Widget.", Toast.LENGTH_LONG).show();
-                }
             }
         });
 

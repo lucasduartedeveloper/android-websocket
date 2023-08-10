@@ -1,4 +1,4 @@
-package com.example.websocketclient.websocketclient;
+package com.example.websocketclient.websocketclient.service;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -22,7 +22,7 @@ import com.example.websocketclient.R;
 
 public class FloatingWidgetShowService extends Service {
     WindowManager windowManager;
-    View floatingView, collapsedView, expandedView;
+    View floatingView;
     WindowManager.LayoutParams params;
 
     public FloatingWidgetShowService() {
@@ -40,42 +40,21 @@ public class FloatingWidgetShowService extends Service {
         floatingView = LayoutInflater.from(this).inflate(R.layout.float_button, null);
 
         params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
 
-        params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        params.gravity = Gravity.LEFT | Gravity.TOP;
+        windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
 
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-                notificationIntent, 0);
-        Notification notification = new NotificationCompat.Builder(this)
-                .setContentText("Service is running...")
-                .setContentIntent(pendingIntent).build();
-        startForeground(1337, notification);
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flag, int startId) {
         windowManager.addView(floatingView, params);
-        expandedView = floatingView.findViewById(R.id.Layout_Expended);
-        collapsedView = floatingView.findViewById(R.id.Layout_Collapsed);
 
         floatingView.findViewById(R.id.Widget_Close_Icon).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 stopSelf();
-            }
-        });
-
-        expandedView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                collapsedView.setVisibility(View.VISIBLE);
-                expandedView.setVisibility(View.GONE);
             }
         });
 
@@ -93,11 +72,6 @@ public class FloatingWidgetShowService extends Service {
                         TouchY = event.getRawY();
                         return true;
 
-                    case MotionEvent.ACTION_UP:
-                        collapsedView.setVisibility(View.GONE);
-                        expandedView.setVisibility(View.VISIBLE);
-                        return true;
-
                     case MotionEvent.ACTION_MOVE:
                         params.x = X_Axis + (int) (event.getRawX() - TouchX);
                         params.y = Y_Axis + (int) (event.getRawY() - TouchY);
@@ -107,9 +81,6 @@ public class FloatingWidgetShowService extends Service {
                 return false;
             }
         });
-
-        startBackgroundThread();
-        return START_STICKY;
     }
 
     private void startBackgroundThread() {
@@ -130,6 +101,7 @@ public class FloatingWidgetShowService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        for (int n = 0; n < 5; n++)
         if (floatingView != null) windowManager.removeView(floatingView);
     }
 }

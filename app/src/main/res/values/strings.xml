@@ -7,6 +7,27 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
+    <string name="gamepad_config">
+        99:[250,250]:[20]\n
+        98:[250,250]:[20]\n
+        0:[250,250]\n
+        1:[250,250]\n
+        2:[1222,585]\n
+        3:[1423,583]\n
+        4:[250,250]\n
+        5:[250,250]\n
+        6:[250,250]\n
+        7:[250,250]\n
+        8:[250,250]\n
+        9:[250,250]\n
+        10:[250,250]\n
+        11:[250,250]\n
+        12:[250,250]:[20]\n
+        13:[250,250]:[20]\n
+        14:[204,620]:[20]\n
+        15:[350,620]:[20]\n
+        16:[250,250]
+    </string>
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
         volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
@@ -43,4 +64,20 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

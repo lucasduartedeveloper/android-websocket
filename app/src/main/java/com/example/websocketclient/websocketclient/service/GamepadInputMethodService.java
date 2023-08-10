@@ -1,4 +1,4 @@
-package com.example.websocketclient.websocketclient;
+package com.example.websocketclient.websocketclient.service;
 
 import android.inputmethodservice.InputMethodService;
 
