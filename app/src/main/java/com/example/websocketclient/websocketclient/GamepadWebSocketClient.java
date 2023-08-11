@@ -218,6 +218,20 @@ public class GamepadWebSocketClient {
                                             runCommand(evArray.get(k));
                                         }
                                     }
+                                    else if (text.startsWith("move")) {
+                                        text = text.replace("move(","");
+                                        text = text.replace(")","");
+                                        String[] textValue = text.split(",");
+                                        ArrayList<String> evArray = move(
+                                                Integer.valueOf(textValue[0]),
+                                                Integer.valueOf(textValue[1]),
+                                                Integer.valueOf(textValue[2])
+                                        );
+                                        for (int k = 0; k < evArray.size(); k++) {
+                                            setCommandHistoryText(evArray.get(k), true);
+                                            runCommand(evArray.get(k));
+                                        }
+                                    }
                                     else if (text.startsWith("down")) {
                                         text = text.replace("down(","");
                                         text = text.replace(")","");
@@ -262,6 +276,27 @@ public class GamepadWebSocketClient {
                                             setCommandHistoryText(evArray.get(k), true);
                                             runCommand(evArray.get(k));
                                         }
+                                    }
+                                    else if (text.startsWith("drag_connect")) {
+                                        text = text.replace("drag_connect(","");
+                                        text = text.replace(")","");
+                                        String[] textValue = text.split(",");
+                                        ArrayList<String> evArray = drag_connect(
+                                                Integer.valueOf(textValue[0]),
+                                                Integer.valueOf(textValue[1]),
+                                                Integer.valueOf(textValue[2]),
+                                                Integer.valueOf(textValue[3]),
+                                                Integer.valueOf(textValue[4])
+                                        );
+                                        for (int k = 0; k < evArray.size(); k++) {
+                                            setCommandHistoryText(evArray.get(k), true);
+                                            runCommand(evArray.get(k));
+                                        }
+                                    }
+                                    else if (text.startsWith("su#")) {
+                                        text = text.replace("su#","");
+                                        setCommandHistoryText(text, true);
+                                        runCommand(text);
                                     }
                                 }
                             }
@@ -488,6 +523,31 @@ public class GamepadWebSocketClient {
         TouchEvent move = new TouchEvent(TouchEvent.Type.MOVE, position.x, position.y);
         moveCommand.add(move);
         return defaultProgram ? moveCommand.toSendeventArray() : moveCommand.toSendeventLine();
+    }
+
+    // complex methods
+    public ArrayList<String> move(int layerNo, int x1, int y1) {
+        Point p1 = new Point(x1, y1);
+        if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
+
+        TouchCommand moveCommand = new TouchCommand(layerNo);
+        TouchEvent move = new TouchEvent(TouchEvent.Type.DOWN, p1.x, p1.y);
+        moveCommand.add(move);
+        return defaultProgram ? moveCommand.toSendeventArray() : moveCommand.toSendeventLine();
+    }
+
+    public ArrayList<String> drag_connect(int layerNo, int x1, int y1, int x2, int y2) {
+        Point p1 = new Point(x1, y1);
+        if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
+        Point p2 = new Point(x2, y2);
+        if (isLandscape) p2 = rotateCoordinates(p2.x, p2.y);
+
+        TouchCommand dragCommand = new TouchCommand(layerNo);
+        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, p1.x, p1.y);
+        TouchEvent move = new TouchEvent(TouchEvent.Type.MOVE, p2.x, p2.y);
+        dragCommand.add(down);
+        dragCommand.add(move);
+        return defaultProgram ? dragCommand.toSendeventArray() : dragCommand.toSendeventLine();
     }
 
     private Point rotateCoordinates(int x1, int y1) {

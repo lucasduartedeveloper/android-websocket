@@ -115,6 +115,21 @@ public class GamepadState {
             int index = Integer.valueOf(line[0].replace(" ", ""));
 
             // buttons down
+            if (line[1].equals("open")) {
+                for (int k = 0; k < buttonsDown.size(); k++) {
+                    GamepadButton button = buttonsDown.get(k);
+                    if (index == button.getIndex()) {
+                        String[] sequence = line[2].split(";");
+                        for (int m = 0; m < sequence.length; m++) {
+                            if (sequence[m].length() > 0)
+                            command.add(sequence[m]);
+                        }
+                    }
+                }
+                continue;
+            }
+
+            // buttons down
             for (int k = 0; k < buttonsDown.size(); k++) {
                 GamepadButton button = buttonsDown.get(k);
                 if (index == button.getIndex()) {
