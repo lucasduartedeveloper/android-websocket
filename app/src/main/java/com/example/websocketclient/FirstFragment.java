@@ -31,8 +31,9 @@ public class FirstFragment extends Fragment {
             Bundle savedInstanceState
     ) {
 
+        getActivity().setTitle("Gamepad Server");
         binding = FragmentFirstBinding.inflate(inflater, container, false);
-        binding.commandHistory.setMovementMethod(new ScrollingMovementMethod());
+        //binding.commandHistory.setMovementMethod(new ScrollingMovementMethod());
         return binding.getRoot();
 
     }

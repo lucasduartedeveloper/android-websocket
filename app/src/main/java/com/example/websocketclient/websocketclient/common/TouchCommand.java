@@ -22,8 +22,8 @@ public class TouchCommand {
                 result.add(evArray.get(k));
             }
         }
-        result.add("sendevent /dev/input/event3 0 2 0");
-        result.add("sendevent /dev/input/event3 0 0 0"); // end of report
+        //result.add("sendevent /dev/input/event3 0 2 0");
+        //result.add("sendevent /dev/input/event3 0 0 0"); // end of report
         return result;
     }
 

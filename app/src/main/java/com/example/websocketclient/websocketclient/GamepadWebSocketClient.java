@@ -1,11 +1,14 @@
 package com.example.websocketclient.websocketclient;
 
+import android.app.Activity;
+import android.app.Application;
 import android.graphics.Point;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.util.Log;
 
+import com.example.websocketclient.R;
 import com.example.websocketclient.databinding.FragmentFirstBinding;
 import com.example.websocketclient.websocketclient.common.GamepadButton;
 import com.example.websocketclient.websocketclient.common.GamepadState;
@@ -28,6 +31,10 @@ public class GamepadWebSocketClient {
     private FragmentFirstBinding binding;
     private WebSocketClient webSocketClient;
 
+    private int profileNo;
+    private String[] gameProfileNames;
+    private String[] gameProfiles;
+
     private int requestNo;
 
     private String requestIdentifier() {
@@ -45,6 +52,13 @@ public class GamepadWebSocketClient {
 
     public GamepadWebSocketClient(FragmentFirstBinding binding) {
         requestNo = 0;
+        profileNo = 0;
+        gameProfileNames = new String[]{
+            "Subway Surfers"
+        };
+        gameProfiles = new String[]{
+            binding.getRoot().getResources().getString(R.string.subway_surfers)
+        };
         this.binding = binding;
     }
 
@@ -84,23 +98,6 @@ public class GamepadWebSocketClient {
                             if (msg[2].startsWith("remote-gamepad-seq")) {
                                 state.loadJson(msg[4]);
 
-                                GamepadButton leftStick = state.getButton(99);
-                                int x = (int) (pointer.x+(leftStick.getAxis_value()[0]*5f));
-                                int y = (int) (pointer.y+(leftStick.getAxis_value()[1]*5f));
-                                x = x < 0 ? 0 : x;
-                                y = y < 0 ? y : 0;
-                                pointer.set(x, y);
-                                setBottomText("pointer at: "+pointer.x+", "+pointer.y);
-
-                                String activeButtonsViewText = "";
-                                ArrayList<GamepadButton> activeButtons = state.getActiveButtons();
-                                for (int n = 0; n < activeButtons.size(); n++) {
-                                    activeButtonsViewText +=
-                                        "button "+activeButtons.get(n).getIndex()+": "+
-                                        activeButtons.get(n).isPressed()+"\n";
-                                }
-                                setGamepadText(activeButtonsViewText);
-
                                 String[] coordinates =
                                 binding.editTextTextMultiLine.getText().toString().split("\\n");
 
@@ -117,6 +114,19 @@ public class GamepadWebSocketClient {
                                             Integer.valueOf(textValue[1]),
                                             Integer.valueOf(textValue[2]),
                                             Integer.valueOf(textValue[3])
+                                        );
+                                        for (int k = 0; k < evArray.size(); k++) {
+                                            setCommandHistoryText(evArray.get(k), true);
+                                            runCommand(evArray.get(k));
+                                        }
+                                    }
+                                    else if (text.startsWith("tap")) {
+                                        text = text.replace("tap(","");
+                                        text = text.replace(")","");
+                                        String[] textValue = text.split(",");
+                                        ArrayList<String> evArray = tap(
+                                                Integer.valueOf(textValue[0]),
+                                                Integer.valueOf(textValue[1])
                                         );
                                         for (int k = 0; k < evArray.size(); k++) {
                                             setCommandHistoryText(evArray.get(k), true);
@@ -292,5 +302,14 @@ public class GamepadWebSocketClient {
         dragCommand.add(move);
         dragCommand.add(up);
         return dragCommand.toSendeventArray();
+    }
+
+    public ArrayList<String> tap(int x1, int y1) {
+        TouchCommand tapCommand = new TouchCommand();
+        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, 0, x1, y1);
+        TouchEvent up = new TouchEvent(TouchEvent.Type.UP, 0, x1, y1);
+        tapCommand.add(down);
+        tapCommand.add(up);
+        return tapCommand.toSendeventArray();
     }
 }

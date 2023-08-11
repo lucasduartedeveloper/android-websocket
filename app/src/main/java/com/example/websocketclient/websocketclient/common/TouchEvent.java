@@ -41,16 +41,16 @@ public class TouchEvent {
             result.add("sendevent /dev/input/event3 3 48 " + pressure);
             result.add("sendevent /dev/input/event3 3 53 " + coordinates.x);
             result.add("sendevent /dev/input/event3 3 54 " + coordinates.y);
-            result.add("sendevent /dev/input/event3 3 330 1");
+            result.add("sendevent /dev/input/event3 1 330 1");
             result.add("sendevent /dev/input/event3 0 0 0");
-            result.add("sleep 0.1");
+            //result.add("sleep 0.1");
         }
         else {
             result.add("sendevent /dev/input/event3 3 47 " + fingerNo);
             result.add("sendevent /dev/input/event3 3 57 4294967295");
-            result.add("sendevent /dev/input/event3 3 330 0");
+            result.add("sendevent /dev/input/event3 1 330 0");
             result.add("sendevent /dev/input/event3 0 0 0");
-            result.add("sleep 0.1");
+            //result.add("sleep 0.1");
         }
         return result;
     }
@@ -64,13 +64,13 @@ public class TouchEvent {
             result += ("3 48 " + pressure + " ");
             result += ("3 53 " + coordinates.x + " ");
             result += ("3 54 " + coordinates.y + " ");
-            result += ("3 330 1 ");
+            result += ("1 330 1 ");
             result += ("0 0 0");
         }
         else {
             result += ("3 47 " + fingerNo + " ");
             result += ("3 57 4294967295 ");
-            result += ("3 330 0 ");
+            result += ("1 330 0 ");
             result += ("0 0 0");
         }
         return result;

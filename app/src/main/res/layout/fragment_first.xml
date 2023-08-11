@@ -61,33 +61,52 @@
             android:ems="10"
             android:gravity="start|top"
             android:inputType="textMultiLine"
-            android:text="@string/gamepad_config"
+            android:text="@string/subway_surfers"
             android:textSize="10sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView_pointer" />
 
         <TextView
             android:id="@+id/textView2"
-            android:layout_width="372dp"
-            android:layout_height="79dp"
-            android:layout_marginTop="256dp"
+            android:layout_width="245dp"
+            android:layout_height="82dp"
+            android:layout_marginTop="228dp"
             android:text="TextView"
+            app:layout_constraintEnd_toStartOf="@+id/gameProfile"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editTextTextMultiLine" />
 
-        <TextView
+        <EditText
             android:id="@+id/commandHistory"
-            android:layout_width="369dp"
-            android:layout_height="257dp"
-            android:layout_marginTop="1dp"
-            android:layout_marginBottom="4dp"
-            android:scrollbars="vertical"
-            android:text="waiting input...\n"
-            android:textSize="10sp"
+            android:layout_width="370dp"
+            android:layout_height="213dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="1dp"
+            android:ems="10"
+            android:gravity="start|top"
+            android:inputType="textMultiLine"
+            android:textSize="14sp"
             app:layout_constraintBottom_toTopOf="@+id/textView2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editTextTextMultiLine"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.21" />
+
+        <Button
+            android:id="@+id/gameProfile"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="111dp"
+            android:layout_height="76dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginBottom="16dp"
+            android:text="Subway Surfers"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView2"
+            app:layout_constraintTop_toBottomOf="@+id/commandHistory"
+            app:layout_constraintVertical_bias="1.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
