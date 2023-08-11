@@ -79,7 +79,7 @@ public class GamepadWebSocketClient {
             @Override
             public void onClick(View v) {
                 profileNo += 1;
-                profileNo = profileNo > gameProfiles.length ? 0 : profileNo;
+                profileNo = profileNo > (gameProfiles.length-1) ? 0 : profileNo;
                 binding.gameStartButton.setText(gameProfileNames[profileNo]);
                 binding.gameProfileSettings.setText(gameProfiles[profileNo]);
             }

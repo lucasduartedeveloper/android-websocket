@@ -72,6 +72,7 @@ public class TouchEvent {
             result += ("3 48 " + pressure + " ");
             result += ("3 53 " + coordinates.x + " ");
             result += ("3 54 " + coordinates.y + " ");
+            if (TouchEvent.downCount == 0)
             result += ("1 330 1 ");
             result += ("0 0 0");
         }
@@ -80,6 +81,7 @@ public class TouchEvent {
             result += ("3 57 4294967295 ");
             result += ("3 58 0 ");
             result += ("3 48 0 ");
+            if (TouchEvent.downCount == 0)
             result += ("1 330 0 ");
             result += ("0 0 0");
         }
