@@ -1,5 +1,6 @@
 package com.example.websocketclient;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -46,7 +47,7 @@ public class FirstFragment extends Fragment {
             public void onClick(View view) {
                 binding.buttonFirst.setText("Starting...");
                 //binding.editTextTextMultiLine.setText("");
-                gamepadWebSocketClient = new GamepadWebSocketClient(binding);
+                gamepadWebSocketClient = new GamepadWebSocketClient(binding, getActivity());
                 gamepadWebSocketClient.createWebSocketClient();
             }
         });

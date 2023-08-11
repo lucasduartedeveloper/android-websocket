@@ -2,11 +2,15 @@ package com.example.websocketclient.websocketclient;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.graphics.Point;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import com.example.websocketclient.R;
 import com.example.websocketclient.databinding.FragmentFirstBinding;
@@ -28,12 +32,15 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class GamepadWebSocketClient {
+
+    private Activity activity;
     private FragmentFirstBinding binding;
     private WebSocketClient webSocketClient;
 
     private int profileNo;
     private String[] gameProfileNames;
     private String[] gameProfiles;
+    private String[] gameProfilePackages;
 
     private int requestNo;
 
@@ -50,15 +57,37 @@ public class GamepadWebSocketClient {
         return result;
     }
 
-    public GamepadWebSocketClient(FragmentFirstBinding binding) {
-        requestNo = 0;
-        profileNo = 0;
-        gameProfileNames = new String[]{
+    public GamepadWebSocketClient(FragmentFirstBinding binding, Activity activity) {
+        this.activity = activity;
+        this.requestNo = 0;
+        this.profileNo = 0;
+
+        this.gameProfileNames = new String[]{
             "Subway Surfers"
         };
-        gameProfiles = new String[]{
+        this.gameProfilePackages = new String[]{
+            "com.kiloo.subwaysurf"
+        };
+        this.gameProfiles = new String[]{
             binding.getRoot().getResources().getString(R.string.subway_surfers)
         };
+
+        binding.gameProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mIntent = activity.getPackageManager()
+                        .getLaunchIntentForPackage(gameProfilePackages[profileNo]);
+                if (mIntent != null) {
+                    try {
+                        activity.startActivity(mIntent);
+                    } catch (ActivityNotFoundException err) {
+                        Toast t = Toast.makeText(activity.getApplicationContext(),
+                                "App is not found", Toast.LENGTH_SHORT);
+                        t.show();
+                    }
+                }
+            }
+        });
         this.binding = binding;
     }
 
