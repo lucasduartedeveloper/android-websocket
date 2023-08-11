@@ -26,8 +26,8 @@ public class GamepadState {
     public void loadJson(String json) {
         last_activeButtons = activeButtons;
         activeButtons = new ArrayList<GamepadButton>();
+        if (json.equals("[]")) return;
         String[] buttons = json.split("\\},");
-        if (json == "[]") return;
         for (int n = 0; n < buttons.length; n++) {
             GamepadButton button = new GamepadButton();
             String text = buttons[n];
@@ -113,20 +113,12 @@ public class GamepadState {
         for (int n = 0; n < coordinates.length; n++) {
             String[] line = coordinates[n].split(":");
             int index = Integer.valueOf(line[0].replace(" ", ""));
-            String[] xy = line[1]
-            .replace("[","")
-            .replace("]","").split(",");
-            Point point = new Point(Integer.valueOf(xy[0]), Integer.valueOf(xy[1]));
-            int length = line.length > 2 ?
-                Integer.valueOf(line[2]
-                .replace("[","")
-                .replace("]","")) : 0;
 
             // buttons down
             for (int k = 0; k < buttonsDown.size(); k++) {
                 GamepadButton button = buttonsDown.get(k);
                 if (index == button.getIndex()) {
-                    command.add("motionevent down "+point.x+" "+point.y);
+                    command.add(line[1]);
                 }
             }
 
@@ -134,7 +126,7 @@ public class GamepadState {
             for (int k = 0; k < buttonsUp.size(); k++) {
                 GamepadButton button = buttonsUp.get(k);
                 if (index == button.getIndex()) {
-                    command.add("motionevent up "+point.x+" "+point.y);
+                    command.add(line[2]);
                 }
             }
         }

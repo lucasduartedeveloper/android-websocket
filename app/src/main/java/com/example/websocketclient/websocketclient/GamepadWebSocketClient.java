@@ -9,11 +9,16 @@ import android.util.Log;
 import com.example.websocketclient.databinding.FragmentFirstBinding;
 import com.example.websocketclient.websocketclient.common.GamepadButton;
 import com.example.websocketclient.websocketclient.common.GamepadState;
+import com.example.websocketclient.websocketclient.common.TouchCommand;
+import com.example.websocketclient.websocketclient.common.TouchEvent;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -101,7 +106,23 @@ public class GamepadWebSocketClient {
 
                                 ArrayList<String> command = state.createCommand(coordinates);
                                 for (int n = 0; n < command.size(); n++) {
-                                    runCommand("input "+command.get(n));
+                                    setCommandHistoryText("", false);
+                                    String text = command.get(n);
+                                    if (text.startsWith("drag")) {
+                                        text = text.replace("drag(","");
+                                        text = text.replace(")","");
+                                        String[] textValue = text.split(",");
+                                        ArrayList<String> evArray = drag(
+                                            Integer.valueOf(textValue[0]),
+                                            Integer.valueOf(textValue[1]),
+                                            Integer.valueOf(textValue[2]),
+                                            Integer.valueOf(textValue[3])
+                                        );
+                                        for (int k = 0; k < evArray.size(); k++) {
+                                            setCommandHistoryText(evArray.get(k), true);
+                                            runCommand(evArray.get(k));
+                                        }
+                                    }
                                 }
                             }
 
@@ -184,6 +205,23 @@ public class GamepadWebSocketClient {
         });
     }
 
+    private void setCommandHistoryText(String text, boolean append) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                String newText = "";
+                if (append) {
+                    newText = binding.commandHistory.getText().toString();
+                    newText += text + "\n";
+                }
+                else {
+                    newText = text;
+                }
+                binding.commandHistory.setText(newText);
+            }
+        });
+    }
+
     private void setListText(String text, boolean append) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
@@ -216,6 +254,9 @@ public class GamepadWebSocketClient {
     private void requestSuperuser() {
         try {
             su = Runtime.getRuntime().exec("su");
+            DataOutputStream outputStream = new DataOutputStream(su.getOutputStream());
+            outputStream.writeBytes("cd /storage/emulated/0/Download/touch-events/\n");
+            outputStream.flush();
         }
         catch (Exception e) {
             setListText(e.getMessage(), true);
@@ -225,8 +266,12 @@ public class GamepadWebSocketClient {
         try {
             DataOutputStream outputStream = new DataOutputStream(su.getOutputStream());
             outputStream.writeBytes(command+"\n");
-            //outputStream.writeBytes("screenrecord --time-limit 10 /sdcard/MyVideo.mp4\n");
             outputStream.flush();
+            //su.waitFor();
+
+            DataInputStream inputStream = new DataInputStream(su.getInputStream());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            //su.waitFor();
 
             //outputStream.writeBytes("exit\n");
             //outputStream.flush();
@@ -236,5 +281,16 @@ public class GamepadWebSocketClient {
             e.printStackTrace();
             //setListText(e.getMessage(), true);
         }
+    }
+
+    public ArrayList<String> drag(int x1, int y1, int x2, int y2) {
+        TouchCommand dragCommand = new TouchCommand();
+        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, 0, x1, y1);
+        TouchEvent move = new TouchEvent(TouchEvent.Type.MOVE, 0, x2, y2);
+        TouchEvent up = new TouchEvent(TouchEvent.Type.UP, 0, x2, y2);
+        dragCommand.add(down);
+        dragCommand.add(move);
+        dragCommand.add(up);
+        return dragCommand.toSendeventArray();
     }
 }
