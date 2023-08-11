@@ -129,6 +129,17 @@ public class GamepadState {
                     command.add(line[2]);
                 }
             }
+
+            // analog button
+            if (line.length == 4)
+            for (int k = 0; k < activeButtons.size(); k++) {
+                GamepadButton button = activeButtons.get(k);
+                if ((index == 99 || index == 98) && index == button.getIndex()) {
+                    String result = line[3].replace("{0}", String.valueOf(button.getAxis_value()[0]));
+                    result = result.replace("{1}", String.valueOf(button.getAxis_value()[1]));
+                    command.add(result);
+                }
+            }
         }
         return command;
     }

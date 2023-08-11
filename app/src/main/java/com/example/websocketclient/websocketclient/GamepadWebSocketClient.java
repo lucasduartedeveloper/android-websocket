@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -15,6 +16,7 @@ import com.example.websocketclient.R;
 import com.example.websocketclient.databinding.FragmentFirstBinding;
 import com.example.websocketclient.websocketclient.common.GamepadButton;
 import com.example.websocketclient.websocketclient.common.GamepadState;
+import com.example.websocketclient.websocketclient.common.MathUtils;
 import com.example.websocketclient.websocketclient.common.TouchCommand;
 import com.example.websocketclient.websocketclient.common.TouchEvent;
 
@@ -62,14 +64,17 @@ public class GamepadWebSocketClient {
         this.isLandscape = false;
 
         this.gameProfileNames = new String[]{
+            "Blank Profile",
             "Subway Surfers",
             "Tony Hawk 4"
         };
         this.gameProfilePackages = new String[]{
+            "none",
             "com.kiloo.subwaysurf",
             "epsxe"
         };
         this.gameProfiles = new String[]{
+            binding.getRoot().getResources().getString(R.string.blank_profile),
             binding.getRoot().getResources().getString(R.string.subway_surfers),
             binding.getRoot().getResources().getString(R.string.epsxe_thps4)
         };
@@ -169,7 +174,11 @@ public class GamepadWebSocketClient {
 
                                 ArrayList<GamepadButton> buttons = state.getActiveButtons();
                                 for (int n = 0; n < buttons.size(); n++) {
-                                    setGamepadText("button "+buttons.get(n).getIndex()+": "+buttons.get(n).getAxis_value());
+                                    if (buttons.get(n).getIndex() < 90)
+                                    setGamepadText("button "+buttons.get(n).getIndex()+": "+buttons.get(n).getValue());
+                                    else
+                                    setGamepadText("button "+buttons.get(n).getIndex()+": "+
+                                    "["+buttons.get(n).getAxis_value()[0]+","+buttons.get(n).getAxis_value()[1]+"]");
                                 }
 
                                 String[] coordinates =
@@ -231,6 +240,23 @@ public class GamepadWebSocketClient {
                                                 Integer.valueOf(textValue[0]),
                                                 Integer.valueOf(textValue[1]),
                                                 Integer.valueOf(textValue[2])
+                                        );
+                                        for (int k = 0; k < evArray.size(); k++) {
+                                            setCommandHistoryText(evArray.get(k), true);
+                                            runCommand(evArray.get(k));
+                                        }
+                                    }
+                                    else if (text.startsWith("analog")) {
+                                        text = text.replace("analog(","");
+                                        text = text.replace(")","");
+                                        String[] textValue = text.split(",");
+                                        ArrayList<String> evArray = analog(
+                                                Integer.valueOf(textValue[0]),
+                                                Integer.valueOf(textValue[1]),
+                                                Integer.valueOf(textValue[2]),
+                                                Float.valueOf(textValue[3]),
+                                                Float.valueOf(textValue[4]),
+                                                Integer.valueOf(textValue[5])
                                         );
                                         for (int k = 0; k < evArray.size(); k++) {
                                             setCommandHistoryText(evArray.get(k), true);
@@ -444,6 +470,24 @@ public class GamepadWebSocketClient {
         TouchEvent up = new TouchEvent(TouchEvent.Type.UP, p1.x, p1.y);
         upCommand.add(up);
         return defaultProgram ? upCommand.toSendeventArray() : upCommand.toSendeventLine();
+    }
+
+    public ArrayList<String> analog(int layerNo, int x1, int y1, float movX, float movY, int radius) {
+        Point p1 = new Point(x1, y1);
+        if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
+
+        Point position = new Point(p1.x, p1.y);
+        PointF vector = new PointF(movX, movY);
+        PointF normalizedVector = MathUtils.normalize(vector, 1);
+        position.set(
+            (int) (position.x + (normalizedVector.x * radius)),
+            (int) (position.y + (normalizedVector.y * radius))
+        );
+
+        TouchCommand moveCommand = new TouchCommand(layerNo);
+        TouchEvent move = new TouchEvent(TouchEvent.Type.MOVE, position.x, position.y);
+        moveCommand.add(move);
+        return defaultProgram ? moveCommand.toSendeventArray() : moveCommand.toSendeventLine();
     }
 
     private Point rotateCoordinates(int x1, int y1) {

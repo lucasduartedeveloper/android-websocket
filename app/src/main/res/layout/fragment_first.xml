@@ -61,7 +61,7 @@
             android:ems="10"
             android:gravity="start|top"
             android:inputType="textMultiLine"
-            android:text="@string/subway_surfers"
+            android:text="@string/blank_profile"
             android:textSize="10sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -71,6 +71,7 @@
             android:layout_width="230dp"
             android:layout_height="48dp"
             android:text="Gamepad:"
+            android:textSize="12sp"
             app:layout_constraintBottom_toTopOf="@+id/sendevent_check_box"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -96,7 +97,7 @@
             android:layout_height="76dp"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="60dp"
-            android:text="Subway Surfers"
+            android:text="Blank Profile"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
