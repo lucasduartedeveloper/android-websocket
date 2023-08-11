@@ -54,7 +54,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textView" />
 
         <EditText
-            android:id="@+id/editTextTextMultiLine"
+            android:id="@+id/game_profile_settings"
             android:layout_width="369dp"
             android:layout_height="254dp"
             android:layout_marginTop="16dp"
@@ -68,13 +68,14 @@
 
         <TextView
             android:id="@+id/textView2"
-            android:layout_width="245dp"
-            android:layout_height="82dp"
-            android:layout_marginTop="228dp"
+            android:layout_width="208dp"
+            android:layout_height="76dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="50dp"
             android:text="TextView"
-            app:layout_constraintEnd_toStartOf="@+id/gameProfile"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTextMultiLine" />
+            app:layout_constraintTop_toBottomOf="@+id/commandHistory" />
 
         <EditText
             android:id="@+id/commandHistory"
@@ -85,28 +86,58 @@
             android:ems="10"
             android:gravity="start|top"
             android:inputType="textMultiLine"
-            android:textSize="14sp"
+            android:textSize="10sp"
             app:layout_constraintBottom_toTopOf="@+id/textView2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTextMultiLine"
+            app:layout_constraintTop_toBottomOf="@+id/game_profile_settings"
             app:layout_constraintVertical_bias="0.21" />
 
         <Button
-            android:id="@+id/gameProfile"
+            android:id="@+id/game_start_button"
             style="@style/Widget.AppCompat.Button"
             android:layout_width="111dp"
             android:layout_height="76dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="3dp"
-            android:layout_marginEnd="25dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="50dp"
             android:text="Subway Surfers"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/textView2"
             app:layout_constraintTop_toBottomOf="@+id/commandHistory"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintVertical_bias="0.058" />
+
+        <Button
+            android:id="@+id/game_profile_select_button"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="32dp"
+            android:layout_height="76dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginEnd="115dp"
+            android:layout_marginBottom="50dp"
+            android:text="setProfile"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/commandHistory"
+            app:layout_constraintVertical_bias="0.076" />
+
+        <CheckBox
+            android:id="@+id/checkBox"
+            android:layout_width="334dp"
+            android:layout_height="36dp"
+            android:layout_marginBottom="20dp"
+            android:text="Convert coordinates from landscape"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <CheckBox
+            android:id="@+id/ui_check_box"
+            android:layout_width="56dp"
+            android:layout_height="36dp"
+            android:layout_marginBottom="20dp"
+            android:text="UI"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

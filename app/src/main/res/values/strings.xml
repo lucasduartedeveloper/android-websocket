@@ -28,6 +28,27 @@
         15:drag(385,1000,585,1000):none\n
         16:[250,250]
     </string>
+    <string name="epsxe_thps4">
+        99:down(260,515):none:none\n
+        98:[250,250]:[20]\n
+        0:[250,250]\n
+        1:[250,250]\n
+        2:drag(385,1000,385,800):none\n
+        3:drag(385,800,385,1000):none\n
+        4:[250,250]\n
+        5:[250,250]\n
+        6:[250,250]\n
+        7:[250,250]\n
+        8:[250,250]\n
+        9:[250,250]\n
+        10:[250,250]\n
+        11:[250,250]\n
+        12:down(275,440):up(275,440)\n
+        13:down(275,615):up(275,615)\n
+        14:down(195,525):up(195,525)\n
+        15:down(355,525):up(355,525)\n
+        16:[250,250]
+    </string>
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
         volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus

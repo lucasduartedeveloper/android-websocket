@@ -4,9 +4,12 @@ import java.util.ArrayList;
 
 public class TouchCommand {
 
+    public static int touchId = -1;
+
     private ArrayList<TouchEvent> touchEvents;
 
     public TouchCommand() {
+        TouchCommand.touchId += 1;
         touchEvents = new ArrayList<TouchEvent>();
     }
 

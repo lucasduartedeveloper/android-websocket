@@ -36,7 +36,7 @@ public class TouchEvent {
         ArrayList<String> result = new ArrayList<String>();
         if (type == Type.DOWN || type == Type.MOVE) {
             result.add("sendevent /dev/input/event3 3 47 " + fingerNo);
-            result.add("sendevent /dev/input/event3 3 57 0");
+            result.add("sendevent /dev/input/event3 3 57 " + TouchCommand.touchId);
             result.add("sendevent /dev/input/event3 3 58 " + radius);
             result.add("sendevent /dev/input/event3 3 48 " + pressure);
             result.add("sendevent /dev/input/event3 3 53 " + coordinates.x);

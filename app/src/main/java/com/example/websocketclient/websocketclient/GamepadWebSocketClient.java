@@ -1,15 +1,14 @@
 package com.example.websocketclient.websocketclient;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Editable;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import com.example.websocketclient.R;
@@ -18,9 +17,6 @@ import com.example.websocketclient.websocketclient.common.GamepadButton;
 import com.example.websocketclient.websocketclient.common.GamepadState;
 import com.example.websocketclient.websocketclient.common.TouchCommand;
 import com.example.websocketclient.websocketclient.common.TouchEvent;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -36,6 +32,8 @@ public class GamepadWebSocketClient {
     private Activity activity;
     private FragmentFirstBinding binding;
     private WebSocketClient webSocketClient;
+
+    private boolean isLandscape;
 
     private int profileNo;
     private String[] gameProfileNames;
@@ -61,18 +59,33 @@ public class GamepadWebSocketClient {
         this.activity = activity;
         this.requestNo = 0;
         this.profileNo = 0;
+        this.isLandscape = false;
 
         this.gameProfileNames = new String[]{
-            "Subway Surfers"
+            "Subway Surfers",
+            "Tony Hawk 4"
         };
         this.gameProfilePackages = new String[]{
-            "com.kiloo.subwaysurf"
+            "com.kiloo.subwaysurf",
+            "epsxe"
         };
         this.gameProfiles = new String[]{
-            binding.getRoot().getResources().getString(R.string.subway_surfers)
+            binding.getRoot().getResources().getString(R.string.subway_surfers),
+            binding.getRoot().getResources().getString(R.string.epsxe_thps4)
         };
 
-        binding.gameProfile.setOnClickListener(new View.OnClickListener() {
+        this.binding = binding;
+        binding.gameProfileSelectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                profileNo += 1;
+                profileNo = profileNo > gameProfiles.length ? 0 : profileNo;
+                binding.gameStartButton.setText(gameProfileNames[profileNo]);
+                binding.gameProfileSettings.setText(gameProfiles[profileNo]);
+            }
+        });
+
+        binding.gameStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent mIntent = activity.getPackageManager()
@@ -88,7 +101,26 @@ public class GamepadWebSocketClient {
                 }
             }
         });
-        this.binding = binding;
+
+        binding.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                isLandscape = isChecked;
+            }
+        });
+
+        binding.uiCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                binding.buttonIme.setEnabled(!isChecked);
+                binding.buttonFirst.setEnabled(!isChecked);
+                binding.gameProfileSettings.setEnabled(!isChecked);
+                binding.commandHistory.setEnabled(!isChecked);
+                binding.checkBox.setEnabled(!isChecked);
+                binding.gameStartButton.setEnabled(!isChecked);
+                binding.gameProfileSelectButton.setEnabled(!isChecked);
+            }
+        });
     }
 
     public void createWebSocketClient() {
@@ -127,8 +159,13 @@ public class GamepadWebSocketClient {
                             if (msg[2].startsWith("remote-gamepad-seq")) {
                                 state.loadJson(msg[4]);
 
+                                ArrayList<GamepadButton> buttons = state.getActiveButtons();
+                                for (int n = 0; n < buttons.size(); n++) {
+                                    setGamepadText("button "+buttons.get(n).getIndex()+": "+buttons.get(n).getAxis_value());
+                                }
+
                                 String[] coordinates =
-                                binding.editTextTextMultiLine.getText().toString().split("\\n");
+                                binding.gameProfileSettings.getText().toString().split("\\n");
 
                                 ArrayList<String> command = state.createCommand(coordinates);
                                 for (int n = 0; n < command.size(); n++) {
@@ -154,6 +191,32 @@ public class GamepadWebSocketClient {
                                         text = text.replace(")","");
                                         String[] textValue = text.split(",");
                                         ArrayList<String> evArray = tap(
+                                                Integer.valueOf(textValue[0]),
+                                                Integer.valueOf(textValue[1])
+                                        );
+                                        for (int k = 0; k < evArray.size(); k++) {
+                                            setCommandHistoryText(evArray.get(k), true);
+                                            runCommand(evArray.get(k));
+                                        }
+                                    }
+                                    else if (text.startsWith("down")) {
+                                        text = text.replace("down(","");
+                                        text = text.replace(")","");
+                                        String[] textValue = text.split(",");
+                                        ArrayList<String> evArray = down(
+                                                Integer.valueOf(textValue[0]),
+                                                Integer.valueOf(textValue[1])
+                                        );
+                                        for (int k = 0; k < evArray.size(); k++) {
+                                            setCommandHistoryText(evArray.get(k), true);
+                                            runCommand(evArray.get(k));
+                                        }
+                                    }
+                                    else if (text.startsWith("up")) {
+                                        text = text.replace("up(","");
+                                        text = text.replace(")","");
+                                        String[] textValue = text.split(",");
+                                        ArrayList<String> evArray = up(
                                                 Integer.valueOf(textValue[0]),
                                                 Integer.valueOf(textValue[1])
                                         );
@@ -267,13 +330,13 @@ public class GamepadWebSocketClient {
             public void run() {
                 String newText = "";
                 if (append) {
-                    newText = binding.editTextTextMultiLine.getText().toString();
+                    newText = binding.gameProfileSettings.getText().toString();
                     newText += text + "\n";
                 }
                 else {
                     newText = text;
                 }
-                binding.editTextTextMultiLine.setText(newText);
+                binding.gameProfileSettings.setText(newText);
             }
         });
     }
@@ -323,10 +386,15 @@ public class GamepadWebSocketClient {
     }
 
     public ArrayList<String> drag(int x1, int y1, int x2, int y2) {
+        Point p1 = new Point(x1, y1);
+        if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
+        Point p2 = new Point(x2, y2);
+        if (isLandscape) p2 = rotateCoordinates(p2.x, p2.y);
+
         TouchCommand dragCommand = new TouchCommand();
-        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, 0, x1, y1);
-        TouchEvent move = new TouchEvent(TouchEvent.Type.MOVE, 0, x2, y2);
-        TouchEvent up = new TouchEvent(TouchEvent.Type.UP, 0, x2, y2);
+        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, 0, p1.x, p1.y);
+        TouchEvent move = new TouchEvent(TouchEvent.Type.MOVE, 0, p2.x, p2.y);
+        TouchEvent up = new TouchEvent(TouchEvent.Type.UP, 0, p2.x, p2.y);
         dragCommand.add(down);
         dragCommand.add(move);
         dragCommand.add(up);
@@ -334,11 +402,40 @@ public class GamepadWebSocketClient {
     }
 
     public ArrayList<String> tap(int x1, int y1) {
+        Point p1 = new Point(x1, y1);
+        if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
+
         TouchCommand tapCommand = new TouchCommand();
-        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, 0, x1, y1);
-        TouchEvent up = new TouchEvent(TouchEvent.Type.UP, 0, x1, y1);
+        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, 0, p1.x, p1.y);
+        TouchEvent up = new TouchEvent(TouchEvent.Type.UP, 0, p1.x, p1.y);
         tapCommand.add(down);
         tapCommand.add(up);
         return tapCommand.toSendeventArray();
+    }
+
+    public ArrayList<String> down(int x1, int y1) {
+        Point p1 = new Point(x1, y1);
+        if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
+
+        TouchCommand downCommand = new TouchCommand();
+        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, 0, p1.x, p1.y);
+        downCommand.add(down);
+        return downCommand.toSendeventArray();
+    }
+
+    public ArrayList<String> up(int x1, int y1) {
+        Point p1 = new Point(x1, y1);
+        if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
+
+        TouchCommand upCommand = new TouchCommand();
+        TouchEvent up = new TouchEvent(TouchEvent.Type.UP, 0, p1.x, p1.y);
+        upCommand.add(up);
+        return upCommand.toSendeventArray();
+    }
+
+    private Point rotateCoordinates(int x1, int y1) {
+        int new_x1 = 1600-y1;
+        int new_y1 = 720-x1;
+        return new Point(new_x1, new_y1);
     }
 }
