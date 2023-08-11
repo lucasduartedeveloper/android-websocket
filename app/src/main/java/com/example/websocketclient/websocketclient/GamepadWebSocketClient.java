@@ -176,11 +176,11 @@ public class GamepadWebSocketClient {
                                         text = text.replace(")","");
                                         String[] textValue = text.split(",");
                                         ArrayList<String> evArray = drag(
-                                            0,
                                             Integer.valueOf(textValue[0]),
                                             Integer.valueOf(textValue[1]),
                                             Integer.valueOf(textValue[2]),
-                                            Integer.valueOf(textValue[3])
+                                            Integer.valueOf(textValue[3]),
+                                            Integer.valueOf(textValue[4])
                                         );
                                         for (int k = 0; k < evArray.size(); k++) {
                                             setCommandHistoryText(evArray.get(k), true);
@@ -192,9 +192,9 @@ public class GamepadWebSocketClient {
                                         text = text.replace(")","");
                                         String[] textValue = text.split(",");
                                         ArrayList<String> evArray = tap(
-                                                0,
                                                 Integer.valueOf(textValue[0]),
-                                                Integer.valueOf(textValue[1])
+                                                Integer.valueOf(textValue[1]),
+                                                Integer.valueOf(textValue[2])
                                         );
                                         for (int k = 0; k < evArray.size(); k++) {
                                             setCommandHistoryText(evArray.get(k), true);
@@ -206,9 +206,9 @@ public class GamepadWebSocketClient {
                                         text = text.replace(")","");
                                         String[] textValue = text.split(",");
                                         ArrayList<String> evArray = down(
-                                                0,
                                                 Integer.valueOf(textValue[0]),
-                                                Integer.valueOf(textValue[1])
+                                                Integer.valueOf(textValue[1]),
+                                                Integer.valueOf(textValue[2])
                                         );
                                         for (int k = 0; k < evArray.size(); k++) {
                                             setCommandHistoryText(evArray.get(k), true);
@@ -220,9 +220,9 @@ public class GamepadWebSocketClient {
                                         text = text.replace(")","");
                                         String[] textValue = text.split(",");
                                         ArrayList<String> evArray = up(
-                                                0,
                                                 Integer.valueOf(textValue[0]),
-                                                Integer.valueOf(textValue[1])
+                                                Integer.valueOf(textValue[1]),
+                                                Integer.valueOf(textValue[2])
                                         );
                                         for (int k = 0; k < evArray.size(); k++) {
                                             setCommandHistoryText(evArray.get(k), true);
