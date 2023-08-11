@@ -119,6 +119,14 @@ public class GamepadWebSocketClient {
                 binding.checkBox.setEnabled(!isChecked);
                 binding.gameStartButton.setEnabled(!isChecked);
                 binding.gameProfileSelectButton.setEnabled(!isChecked);
+                binding.sendeventCheckBox.setEnabled(!isChecked);
+            }
+        });
+
+        binding.sendeventCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                defaultProgram = !isChecked;
             }
         });
     }
@@ -306,7 +314,7 @@ public class GamepadWebSocketClient {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                binding.textView2.setText(text);
+                binding.gamepadState.setText("Gamepad:\n" +text);
             }
         });
     }
@@ -361,7 +369,7 @@ public class GamepadWebSocketClient {
         try {
             su = Runtime.getRuntime().exec("su");
             DataOutputStream outputStream = new DataOutputStream(su.getOutputStream());
-            outputStream.writeBytes("cd /storage/emulated/0/Download/touch-events/\n");
+            outputStream.writeBytes("cd /data/local/tmp\n");
             outputStream.flush();
         }
         catch (Exception e) {
@@ -389,6 +397,7 @@ public class GamepadWebSocketClient {
         }
     }
 
+    private static boolean defaultProgram = false;
     public ArrayList<String> drag(int layerNo, int x1, int y1, int x2, int y2) {
         Point p1 = new Point(x1, y1);
         if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
@@ -402,7 +411,7 @@ public class GamepadWebSocketClient {
         dragCommand.add(down);
         dragCommand.add(move);
         dragCommand.add(up);
-        return dragCommand.toSendeventArray();
+        return defaultProgram ? dragCommand.toSendeventArray() : dragCommand.toSendeventLine();
     }
 
     public ArrayList<String> tap(int layerNo, int x1, int y1) {
@@ -414,7 +423,7 @@ public class GamepadWebSocketClient {
         TouchEvent up = new TouchEvent(TouchEvent.Type.UP, p1.x, p1.y);
         tapCommand.add(down);
         tapCommand.add(up);
-        return tapCommand.toSendeventArray();
+        return defaultProgram ? tapCommand.toSendeventArray() : tapCommand.toSendeventLine();
     }
 
     public ArrayList<String> down(int layerNo, int x1, int y1) {
@@ -424,7 +433,7 @@ public class GamepadWebSocketClient {
         TouchCommand downCommand = new TouchCommand(layerNo);
         TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, p1.x, p1.y);
         downCommand.add(down);
-        return downCommand.toSendeventArray();
+        return defaultProgram ? downCommand.toSendeventArray() : downCommand.toSendeventLine();
     }
 
     public ArrayList<String> up(int layerNo, int x1, int y1) {
@@ -434,7 +443,7 @@ public class GamepadWebSocketClient {
         TouchCommand upCommand = new TouchCommand(layerNo);
         TouchEvent up = new TouchEvent(TouchEvent.Type.UP, p1.x, p1.y);
         upCommand.add(up);
-        return upCommand.toSendeventArray();
+        return defaultProgram ? upCommand.toSendeventArray() : upCommand.toSendeventLine();
     }
 
     private Point rotateCoordinates(int x1, int y1) {

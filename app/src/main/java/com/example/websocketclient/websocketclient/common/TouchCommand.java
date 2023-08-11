@@ -31,11 +31,13 @@ public class TouchCommand {
         return result;
     }
 
-    public String toSendeventLine() {
-        String result = "sendevent_line /dev/input/event3 ";
+    public ArrayList<String> toSendeventLine() {
+        ArrayList<String> result = new ArrayList<String>();
+        String text = "./sendevent_line /dev/input/event3 ";
         for (int n = 0; n < touchEvents.size(); n++) {
-             result += touchEvents.get(n).toSendeventLine() + " ";
+            text += touchEvents.get(n).toSendeventLine() + " ";
         }
+        result.add(text);
         return result;
     }
 }

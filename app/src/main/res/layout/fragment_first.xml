@@ -57,25 +57,22 @@
             android:id="@+id/game_profile_settings"
             android:layout_width="369dp"
             android:layout_height="254dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="60dp"
             android:ems="10"
             android:gravity="start|top"
             android:inputType="textMultiLine"
             android:text="@string/subway_surfers"
             android:textSize="10sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_pointer" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/textView2"
-            android:layout_width="208dp"
-            android:layout_height="76dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="50dp"
-            android:text="TextView"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/commandHistory" />
+            android:id="@+id/gamepad_state"
+            android:layout_width="230dp"
+            android:layout_height="48dp"
+            android:text="Gamepad:"
+            app:layout_constraintBottom_toTopOf="@+id/sendevent_check_box"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <EditText
             android:id="@+id/commandHistory"
@@ -87,7 +84,7 @@
             android:gravity="start|top"
             android:inputType="textMultiLine"
             android:textSize="10sp"
-            app:layout_constraintBottom_toTopOf="@+id/textView2"
+            app:layout_constraintBottom_toTopOf="@+id/gamepad_state"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/game_profile_settings"
             app:layout_constraintVertical_bias="0.21" />
@@ -98,7 +95,7 @@
             android:layout_width="111dp"
             android:layout_height="76dp"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="50dp"
+            android:layout_marginBottom="60dp"
             android:text="Subway Surfers"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -111,22 +108,32 @@
             style="@style/Widget.AppCompat.Button"
             android:layout_width="32dp"
             android:layout_height="76dp"
-            android:layout_marginTop="3dp"
+            android:layout_marginTop="4dp"
             android:layout_marginEnd="115dp"
-            android:layout_marginBottom="50dp"
+            android:layout_marginBottom="60dp"
             android:text="setProfile"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/commandHistory"
-            app:layout_constraintVertical_bias="0.076" />
+            app:layout_constraintVertical_bias="0.056" />
 
         <CheckBox
             android:id="@+id/checkBox"
             android:layout_width="334dp"
             android:layout_height="36dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="25dp"
             android:text="Convert coordinates from landscape"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <CheckBox
+            android:id="@+id/sendevent_check_box"
+            android:layout_width="231dp"
+            android:layout_height="36dp"
+            android:layout_marginBottom="50dp"
+            android:checked="true"
+            android:text="Use edited sendevent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -134,7 +141,7 @@
             android:id="@+id/ui_check_box"
             android:layout_width="56dp"
             android:layout_height="36dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="25dp"
             android:text="UI"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
