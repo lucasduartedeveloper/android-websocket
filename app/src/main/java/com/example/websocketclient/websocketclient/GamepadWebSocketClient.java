@@ -176,6 +176,7 @@ public class GamepadWebSocketClient {
                                         text = text.replace(")","");
                                         String[] textValue = text.split(",");
                                         ArrayList<String> evArray = drag(
+                                            0,
                                             Integer.valueOf(textValue[0]),
                                             Integer.valueOf(textValue[1]),
                                             Integer.valueOf(textValue[2]),
@@ -191,6 +192,7 @@ public class GamepadWebSocketClient {
                                         text = text.replace(")","");
                                         String[] textValue = text.split(",");
                                         ArrayList<String> evArray = tap(
+                                                0,
                                                 Integer.valueOf(textValue[0]),
                                                 Integer.valueOf(textValue[1])
                                         );
@@ -204,6 +206,7 @@ public class GamepadWebSocketClient {
                                         text = text.replace(")","");
                                         String[] textValue = text.split(",");
                                         ArrayList<String> evArray = down(
+                                                0,
                                                 Integer.valueOf(textValue[0]),
                                                 Integer.valueOf(textValue[1])
                                         );
@@ -217,6 +220,7 @@ public class GamepadWebSocketClient {
                                         text = text.replace(")","");
                                         String[] textValue = text.split(",");
                                         ArrayList<String> evArray = up(
+                                                0,
                                                 Integer.valueOf(textValue[0]),
                                                 Integer.valueOf(textValue[1])
                                         );
@@ -385,50 +389,50 @@ public class GamepadWebSocketClient {
         }
     }
 
-    public ArrayList<String> drag(int x1, int y1, int x2, int y2) {
+    public ArrayList<String> drag(int layerNo, int x1, int y1, int x2, int y2) {
         Point p1 = new Point(x1, y1);
         if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
         Point p2 = new Point(x2, y2);
         if (isLandscape) p2 = rotateCoordinates(p2.x, p2.y);
 
-        TouchCommand dragCommand = new TouchCommand();
-        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, 0, p1.x, p1.y);
-        TouchEvent move = new TouchEvent(TouchEvent.Type.MOVE, 0, p2.x, p2.y);
-        TouchEvent up = new TouchEvent(TouchEvent.Type.UP, 0, p2.x, p2.y);
+        TouchCommand dragCommand = new TouchCommand(layerNo);
+        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, p1.x, p1.y);
+        TouchEvent move = new TouchEvent(TouchEvent.Type.MOVE, p2.x, p2.y);
+        TouchEvent up = new TouchEvent(TouchEvent.Type.UP, p2.x, p2.y);
         dragCommand.add(down);
         dragCommand.add(move);
         dragCommand.add(up);
         return dragCommand.toSendeventArray();
     }
 
-    public ArrayList<String> tap(int x1, int y1) {
+    public ArrayList<String> tap(int layerNo, int x1, int y1) {
         Point p1 = new Point(x1, y1);
         if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
 
-        TouchCommand tapCommand = new TouchCommand();
-        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, 0, p1.x, p1.y);
-        TouchEvent up = new TouchEvent(TouchEvent.Type.UP, 0, p1.x, p1.y);
+        TouchCommand tapCommand = new TouchCommand(layerNo);
+        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, p1.x, p1.y);
+        TouchEvent up = new TouchEvent(TouchEvent.Type.UP, p1.x, p1.y);
         tapCommand.add(down);
         tapCommand.add(up);
         return tapCommand.toSendeventArray();
     }
 
-    public ArrayList<String> down(int x1, int y1) {
+    public ArrayList<String> down(int layerNo, int x1, int y1) {
         Point p1 = new Point(x1, y1);
         if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
 
-        TouchCommand downCommand = new TouchCommand();
-        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, 0, p1.x, p1.y);
+        TouchCommand downCommand = new TouchCommand(layerNo);
+        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, p1.x, p1.y);
         downCommand.add(down);
         return downCommand.toSendeventArray();
     }
 
-    public ArrayList<String> up(int x1, int y1) {
+    public ArrayList<String> up(int layerNo, int x1, int y1) {
         Point p1 = new Point(x1, y1);
         if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
 
-        TouchCommand upCommand = new TouchCommand();
-        TouchEvent up = new TouchEvent(TouchEvent.Type.UP, 0, p1.x, p1.y);
+        TouchCommand upCommand = new TouchCommand(layerNo);
+        TouchEvent up = new TouchEvent(TouchEvent.Type.UP, p1.x, p1.y);
         upCommand.add(up);
         return upCommand.toSendeventArray();
     }

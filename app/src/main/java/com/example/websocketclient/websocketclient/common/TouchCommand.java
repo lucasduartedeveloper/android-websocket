@@ -5,15 +5,18 @@ import java.util.ArrayList;
 public class TouchCommand {
 
     public static int touchId = -1;
+    public int layerNo;
 
     private ArrayList<TouchEvent> touchEvents;
 
-    public TouchCommand() {
+    public TouchCommand(int layerNo) {
         TouchCommand.touchId += 1;
+        this.layerNo = layerNo;
         touchEvents = new ArrayList<TouchEvent>();
     }
 
     public void add(TouchEvent event) {
+        event.command = this;
         touchEvents.add(event);
     }
 
@@ -25,8 +28,6 @@ public class TouchCommand {
                 result.add(evArray.get(k));
             }
         }
-        //result.add("sendevent /dev/input/event3 0 2 0");
-        //result.add("sendevent /dev/input/event3 0 0 0"); // end of report
         return result;
     }
 
