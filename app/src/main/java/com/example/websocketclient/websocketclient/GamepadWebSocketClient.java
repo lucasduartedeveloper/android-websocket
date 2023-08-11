@@ -434,8 +434,8 @@ public class GamepadWebSocketClient {
     }
 
     private Point rotateCoordinates(int x1, int y1) {
-        int new_x1 = 1600-y1;
-        int new_y1 = 720-x1;
+        int new_x1 = 720-y1;
+        int new_y1 = x1;
         return new Point(new_x1, new_y1);
     }
 }
