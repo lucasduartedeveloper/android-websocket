@@ -66,7 +66,7 @@ public class TouchEvent {
         String result = "";
         if (type == Type.DOWN || type == Type.MOVE) {
             result += ("3 47 " + command.layerNo + " ");
-            result += ("3 57 0 ");
+            result += ("3 57 " + TouchCommand.touchId);
             result += ("3 58 " + radius + " ");
             result += ("3 48 " + pressure + " ");
             result += ("3 53 " + coordinates.x + " ");
