@@ -555,4 +555,8 @@ public class GamepadWebSocketClient {
         int new_y1 = x1;
         return new Point(new_x1, new_y1);
     }
+
+    public void Dispose() {
+        webSocketClient.close(0, 0, "user");
+    }
 }

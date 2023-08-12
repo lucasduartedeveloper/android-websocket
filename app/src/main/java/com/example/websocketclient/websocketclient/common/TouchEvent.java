@@ -75,6 +75,7 @@ public class TouchEvent {
             if (TouchEvent.downCount == 0)
             result += ("1 330 1 ");
             result += ("0 0 0");
+            TouchEvent.downCount += 1;
         }
         else {
             result += ("3 47 " + command.layerNo + " ");
@@ -84,6 +85,7 @@ public class TouchEvent {
             if (TouchEvent.downCount == 0)
             result += ("1 330 0 ");
             result += ("0 0 0");
+            TouchEvent.downCount -= 1;
         }
         return result;
     }

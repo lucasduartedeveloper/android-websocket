@@ -45,10 +45,15 @@ public class FirstFragment extends Fragment {
         binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                binding.buttonFirst.setText("Starting...");
-                //binding.editTextTextMultiLine.setText("");
-                gamepadWebSocketClient = new GamepadWebSocketClient(binding, getActivity());
-                gamepadWebSocketClient.createWebSocketClient();
+                if (binding.buttonFirst.getText().equals("Connected")) {
+                    gamepadWebSocketClient.Dispose();
+                    binding.buttonFirst.setText("Stopped");
+                }
+                else {
+                    binding.buttonFirst.setText("Starting...");
+                    gamepadWebSocketClient = new GamepadWebSocketClient(binding, getActivity());
+                    gamepadWebSocketClient.createWebSocketClient();
+                }
             }
         });
 
