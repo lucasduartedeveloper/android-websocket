@@ -2,7 +2,7 @@
     <string name="app_name">WebSocketClient</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
+    <string name="first_fragment_label">Gamepad Server</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
@@ -29,7 +29,7 @@
         16:[250,250]
     </string>
     <string name="epsxe_thps4">
-        99:down(260,515):up(260,515):analog(260,515,{0},{1},150)\n
+        99:down(0,260,515):up(0,260,515):analog(0,260,515,{0},{1},150)\n
         98:[250,250]:[20]\n
         0:down(5,1365,630):up(5,1365,630)\n
         1:down(4,1470,495):up(4,1470,495)\n

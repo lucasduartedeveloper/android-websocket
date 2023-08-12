@@ -43,6 +43,7 @@ public class GamepadWebSocketClient {
     private String[] gameProfilePackages;
 
     private int requestNo;
+    private ArrayList<String> receivedMessages;
 
     private String requestIdentifier() {
         requestNo += 1;
@@ -62,6 +63,7 @@ public class GamepadWebSocketClient {
         this.requestNo = 0;
         this.profileNo = 0;
         this.isLandscape = false;
+        this.receivedMessages = new ArrayList<String>();
 
         this.gameProfileNames = new String[]{
             "Blank Profile",
@@ -117,7 +119,7 @@ public class GamepadWebSocketClient {
         binding.uiCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                binding.buttonIme.setEnabled(!isChecked);
+                binding.buttonOpen.setEnabled(!isChecked);
                 binding.buttonFirst.setEnabled(!isChecked);
                 binding.gameProfileSettings.setEnabled(!isChecked);
                 binding.commandHistory.setEnabled(!isChecked);
@@ -134,6 +136,13 @@ public class GamepadWebSocketClient {
                 defaultProgram = !isChecked;
             }
         });
+
+        binding.buttonOpen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                runCommand("sendevent --help", true);
+            }
+        });
     }
 
     public void createWebSocketClient() {
@@ -147,6 +156,8 @@ public class GamepadWebSocketClient {
         }
 
         webSocketClient = new WebSocketClient(uri) {
+            GamepadState state = new GamepadState();
+
             @Override
             public void onOpen() {
                 Log.i("WebSocket", "Session is starting");
@@ -158,10 +169,10 @@ public class GamepadWebSocketClient {
                 webSocketClient.send("PAPER|android-app|remote-gamepad-attach");
             }
 
-            GamepadState state = new GamepadState();
             @Override
             public void onTextReceived(String s) {
                 Log.i("WebSocket", "Message received");
+                receivedMessages.add(s);
                 try {
                     String[] msg = s.split("\\|");
                     if (!msg[1].startsWith("android-app")) {
@@ -169,20 +180,21 @@ public class GamepadWebSocketClient {
                             setBattery(Integer.valueOf(msg[3]));
                         }
                         else {
-                            if (msg[2].startsWith("remote-gamepad-seq")) {
-                                state.loadJson(msg[4]);
+                            if (msg[2].startsWith("remote-gamepad-data")) {
+                                state.loadJson(msg[3]);
 
                                 ArrayList<GamepadButton> buttons = state.getActiveButtons();
                                 for (int n = 0; n < buttons.size(); n++) {
                                     if (buttons.get(n).getIndex() < 90)
-                                    setGamepadText("button "+buttons.get(n).getIndex()+": "+buttons.get(n).getValue());
+                                        setGamepadText("button "+buttons.get(n).getIndex()+": "+buttons.get(n).getValue());
                                     else
-                                    setGamepadText("button "+buttons.get(n).getIndex()+": "+
-                                    "["+buttons.get(n).getAxis_value()[0]+","+buttons.get(n).getAxis_value()[1]+"]");
+                                        setGamepadText("button "+buttons.get(n).getIndex()+": "+
+                                                "["+String.format("%.2f", buttons.get(n).getAxis_value()[0])+
+                                                ","+String.format("%.2f", buttons.get(n).getAxis_value()[1])+"]");
                                 }
 
                                 String[] coordinates =
-                                binding.gameProfileSettings.getText().toString().split("\\n");
+                                        binding.gameProfileSettings.getText().toString().split("\\n");
 
                                 ArrayList<String> command = state.createCommand(coordinates);
                                 for (int n = 0; n < command.size(); n++) {
@@ -193,11 +205,11 @@ public class GamepadWebSocketClient {
                                         text = text.replace(")","");
                                         String[] textValue = text.split(",");
                                         ArrayList<String> evArray = drag(
-                                            Integer.valueOf(textValue[0]),
-                                            Integer.valueOf(textValue[1]),
-                                            Integer.valueOf(textValue[2]),
-                                            Integer.valueOf(textValue[3]),
-                                            Integer.valueOf(textValue[4])
+                                                Integer.valueOf(textValue[0]),
+                                                Integer.valueOf(textValue[1]),
+                                                Integer.valueOf(textValue[2]),
+                                                Integer.valueOf(textValue[3]),
+                                                Integer.valueOf(textValue[4])
                                         );
                                         for (int k = 0; k < evArray.size(); k++) {
                                             setCommandHistoryText(evArray.get(k), true);
@@ -300,10 +312,6 @@ public class GamepadWebSocketClient {
                                     }
                                 }
                             }
-
-                            String nextRequest =
-                                    "PAPER|android-app|remote-gamepad-get|" + requestIdentifier();
-                            webSocketClient.send(nextRequest);
                         }
                     }
                 } catch (Exception e) {
@@ -437,7 +445,12 @@ public class GamepadWebSocketClient {
             setListText(e.getMessage(), true);
         }
     }
+
     private void runCommand(String command) {
+        runCommand(command, false);
+    }
+
+    private void runCommand(String command, boolean read) {
         try {
             DataOutputStream outputStream = new DataOutputStream(su.getOutputStream());
             outputStream.writeBytes(command+"\n");
@@ -447,6 +460,13 @@ public class GamepadWebSocketClient {
             DataInputStream inputStream = new DataInputStream(su.getInputStream());
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             //su.waitFor();
+
+            StringBuilder log = new StringBuilder();
+            String line;
+            if (read)
+            while ((line = reader.readLine()) != null) {
+                setCommandHistoryText(line, true);
+            }
 
             //outputStream.writeBytes("exit\n");
             //outputStream.flush();
@@ -514,6 +534,8 @@ public class GamepadWebSocketClient {
         Point position = new Point(p1.x, p1.y);
         PointF vector = new PointF(movX, movY);
         PointF normalizedVector = MathUtils.normalize(vector, 1);
+        if (isLandscape)
+        normalizedVector = MathUtils.rotate2d(new PointF(0f, 0f), normalizedVector, -90, true);
         position.set(
             (int) (position.x + (normalizedVector.x * radius)),
             (int) (position.y + (normalizedVector.y * radius))

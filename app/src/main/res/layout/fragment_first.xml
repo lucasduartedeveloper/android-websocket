@@ -13,10 +13,10 @@
         tools:layout_editor_absoluteY="1dp">
 
         <Button
-            android:id="@+id/button_ime"
+            android:id="@+id/button_open"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="IME"
+            android:text="OPEN"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.462"
             app:layout_constraintStart_toStartOf="parent"

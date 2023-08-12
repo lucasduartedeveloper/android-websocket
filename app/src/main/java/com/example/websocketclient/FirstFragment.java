@@ -2,6 +2,7 @@ package com.example.websocketclient;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,16 +28,10 @@ public class FirstFragment extends Fragment {
     private FragmentFirstBinding binding;
 
     @Override
-    public View onCreateView(
-            LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
-
-        getActivity().setTitle("Gamepad Server");
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentFirstBinding.inflate(inflater, container, false);
         //binding.commandHistory.setMovementMethod(new ScrollingMovementMethod());
         return binding.getRoot();
-
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
@@ -54,13 +49,6 @@ public class FirstFragment extends Fragment {
                     gamepadWebSocketClient = new GamepadWebSocketClient(binding, getActivity());
                     gamepadWebSocketClient.createWebSocketClient();
                 }
-            }
-        });
-
-        binding.buttonIme.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getContext().startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS));
             }
         });
     }

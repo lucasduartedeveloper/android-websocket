@@ -49,6 +49,7 @@ public class TouchEvent {
             TouchEvent.downCount += 1;
         }
         else {
+            if (type == Type.UP) TouchEvent.downCount -= 1;
             result.add("sendevent /dev/input/event3 3 47 " + command.layerNo);
             result.add("sendevent /dev/input/event3 3 57 4294967295");
             result.add("sendevent /dev/input/event3 3 58 0");
@@ -57,8 +58,6 @@ public class TouchEvent {
             result.add("sendevent /dev/input/event3 1 330 0");
             result.add("sendevent /dev/input/event3 0 0 0");
             //result.add("sleep 0.1");
-            if (type == Type.UP)
-            TouchEvent.downCount -= 1;
         }
         return result;
     }
@@ -75,9 +74,11 @@ public class TouchEvent {
             if (TouchEvent.downCount == 0)
             result += ("1 330 1 ");
             result += ("0 0 0");
+            if (type == Type.DOWN)
             TouchEvent.downCount += 1;
         }
         else {
+            if (type == Type.UP) TouchEvent.downCount -= 1;
             result += ("3 47 " + command.layerNo + " ");
             result += ("3 57 4294967295 ");
             result += ("3 58 0 ");
@@ -85,7 +86,6 @@ public class TouchEvent {
             if (TouchEvent.downCount == 0)
             result += ("1 330 0 ");
             result += ("0 0 0");
-            TouchEvent.downCount -= 1;
         }
         return result;
     }
