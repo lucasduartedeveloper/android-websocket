@@ -184,6 +184,7 @@ public class GamepadWebSocketClient {
                         }
                         else {
                             if (msg[2].startsWith("remote-gamepad-data")) {
+                                startTimer();
                                 if (Integer.valueOf(msg[3]) < currentNo) return;
 
                                 currentNo = Integer.valueOf(msg[3]);
@@ -370,6 +371,42 @@ public class GamepadWebSocketClient {
         webSocketClient.setReadTimeout(60000);
         webSocketClient.enableAutomaticReconnection(5000);
         webSocketClient.connect();
+    }
+
+    private Thread timerThread;
+    private long timeStarted;
+    public void startTimer() {
+        if (timerThread != null) return;
+        timeStarted = new Date().getTime();
+        timerThread = new Thread(new Runnable() {
+            public void run() {
+                while(true) {
+                    long ms = new Date().getTime() - timeStarted;
+                    int minutes = (int)((ms/1000)/60);
+                    int seconds = (int)((ms/1000)%60);
+                    setTimerText(
+                        String.format("%02d", minutes)+":"+
+                        String.format("%02d", seconds)
+                    );
+                }
+            }
+        });
+        timerThread.start();
+    }
+
+    public void stopTimer() {
+        timerThread.stop();
+        timerThread = null;
+    }
+
+    private void setTimerText(String text) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                binding.timerView.setText(text);
+                binding.timerView.invalidate();
+            }
+        });
     }
 
     private void setButtonText(String text) {
