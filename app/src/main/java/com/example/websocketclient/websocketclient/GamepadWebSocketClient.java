@@ -24,6 +24,8 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -187,10 +189,15 @@ public class GamepadWebSocketClient {
                                 for (int n = 0; n < buttons.size(); n++) {
                                     if (buttons.get(n).getIndex() < 90)
                                         setGamepadText("button "+buttons.get(n).getIndex()+": "+buttons.get(n).getValue());
-                                    else
-                                        setGamepadText("button "+buttons.get(n).getIndex()+": "+
-                                                "["+String.format("%.2f", buttons.get(n).getAxis_value()[0])+
-                                                ","+String.format("%.2f", buttons.get(n).getAxis_value()[1])+"]");
+                                    else {
+                                        BigDecimal x = new BigDecimal(buttons.get(n).getAxis_value()[0])
+                                        .setScale(2, RoundingMode.HALF_EVEN);
+                                        BigDecimal y = new BigDecimal(buttons.get(n).getAxis_value()[1])
+                                        .setScale(2, RoundingMode.HALF_EVEN);
+
+                                        setGamepadText("button " + buttons.get(n).getIndex() + ": " +
+                                        "[" + x + "," + y + "]");
+                                    }
                                 }
 
                                 String[] coordinates =
