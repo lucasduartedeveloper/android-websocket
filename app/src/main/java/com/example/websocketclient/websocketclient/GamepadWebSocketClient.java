@@ -171,6 +171,7 @@ public class GamepadWebSocketClient {
                 webSocketClient.send("PAPER|android-app|remote-gamepad-attach");
             }
 
+            private int currentNo = 0;
             @Override
             public void onTextReceived(String s) {
                 Log.i("WebSocket", "Message received");
@@ -183,7 +184,10 @@ public class GamepadWebSocketClient {
                         }
                         else {
                             if (msg[2].startsWith("remote-gamepad-data")) {
-                                state.loadJson(msg[3]);
+                                if (Integer.valueOf(msg[3]) < currentNo) return;
+
+                                currentNo = Integer.valueOf(msg[3]);
+                                state.loadJson(msg[4]);
 
                                 ArrayList<GamepadButton> buttons = state.getActiveButtons();
                                 for (int n = 0; n < buttons.size(); n++) {
