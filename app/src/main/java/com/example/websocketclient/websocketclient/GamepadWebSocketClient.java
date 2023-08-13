@@ -505,10 +505,10 @@ public class GamepadWebSocketClient {
             DataOutputStream outputStream = new DataOutputStream(su.getOutputStream());
             outputStream.writeBytes(command+"\n");
             outputStream.flush();
+
             Log.i("root", command);
             setEventCount(String.valueOf(eventCount));
             eventCount += 1;
-            //su.waitFor();
 
             DataInputStream inputStream = new DataInputStream(su.getInputStream());
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -520,6 +520,10 @@ public class GamepadWebSocketClient {
                 setCommandHistoryText(line, true);
             }
 
+            if (eventCount % 300 == 0) {
+                su.destroy();
+                requestSuperuser();
+            }
             //outputStream.writeBytes("exit\n");
             //outputStream.flush();
             //su.waitFor();
