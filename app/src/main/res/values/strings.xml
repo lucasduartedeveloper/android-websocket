@@ -12,7 +12,8 @@
         98:down(1,360,800):up(1,360,800):analog(1,360,800,{0},{1},200)\n
         3:open:su#input keyevent KEYCODE_POWER;\n
         1:open:su#input swipe 355 1300 355 300\n
-        2:open:down(0,140,920);move(0,565,920);move(0,355,1135);move(0,355,1355);up(0,355,1355);
+        2:open:down(0,140,920);move(0,565,920);move(0,355,1135);move(0,355,1355);up(0,355,1355);\n
+        9:open:circle(0,360,800,300,60,5,true,20);
     </string>
     <string name="gta_vicecity">
         99:down(0,225,560):up(0,225,560):analog(0,225,560,{0},{1},100)\n

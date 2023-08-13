@@ -313,6 +313,25 @@ public class GamepadWebSocketClient {
                                             runCommand(evArray.get(k));
                                         }
                                     }
+                                    else if (text.startsWith("circle")) {
+                                        text = text.replace("circle(","");
+                                        text = text.replace(")","");
+                                        String[] textValue = text.split(",");
+                                        ArrayList<String> evArray = circle(
+                                                Integer.valueOf(textValue[0]),
+                                                Integer.valueOf(textValue[1]),
+                                                Integer.valueOf(textValue[2]),
+                                                Integer.valueOf(textValue[3]),
+                                                Integer.valueOf(textValue[4]),
+                                                Integer.valueOf(textValue[5]),
+                                                Boolean.valueOf(textValue[6])
+                                        );
+                                        for (int k = 0; k < evArray.size(); k++) {
+                                            setCommandHistoryText(evArray.get(k), true);
+                                            runCommand(evArray.get(k));
+                                            Thread.sleep(Integer.valueOf(textValue[7]));
+                                        }
+                                    }
                                     else if (text.startsWith("drag_connect")) {
                                         text = text.replace("drag_connect(","");
                                         text = text.replace(")","");
@@ -616,6 +635,33 @@ public class GamepadWebSocketClient {
         TouchEvent move = new TouchEvent(TouchEvent.Type.DOWN, p1.x, p1.y);
         moveCommand.add(move);
         return defaultProgram ? moveCommand.toSendeventArray() : moveCommand.toSendeventLine();
+    }
+
+    public ArrayList<String> circle(int layerNo, int x1, int y1, float radius, int steps, int turns, boolean decrease) {
+        Point p1 = new Point(x1, y1);
+        if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
+
+        PointF center = new PointF(p1.x, p1.y);
+        PointF vector = new PointF(p1.x, p1.y-radius);
+        if (isLandscape)
+        vector = MathUtils.rotate2d(center, vector, -90, true);
+
+        ArrayList<String> command = new ArrayList<String>();
+        TouchCommand circleCommand = new TouchCommand(layerNo);
+        TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, (int) vector.x, (int) vector.y);
+        circleCommand.add(down);
+        command.addAll(defaultProgram ? circleCommand.toSendeventArray() : circleCommand.toSendeventLine());
+        for (int n = 0; n < (turns*steps); n++) {
+            circleCommand = new TouchCommand(layerNo);
+            if (decrease)
+            vector.y = p1.y - (radius-(n*((radius/(steps*turns)))));
+            PointF rotation = MathUtils.rotate2d(center, vector, (n*(360/steps)), true);
+            TouchEvent move = new TouchEvent(TouchEvent.Type.DOWN, (int) rotation.x, (int) rotation.y);
+            circleCommand.add(move);
+            command.addAll(defaultProgram ? circleCommand.toSendeventArray() : circleCommand.toSendeventLine());
+        }
+
+        return command;
     }
 
     public ArrayList<String> drag_connect(int layerNo, int x1, int y1, int x2, int y2) {
