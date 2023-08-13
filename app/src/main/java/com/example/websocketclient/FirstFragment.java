@@ -83,6 +83,7 @@ public class FirstFragment extends Fragment {
                 if (mIntent != null) {
                     try {
                         getActivity().startActivity(mIntent);
+                        binding.uiCheckBox.setChecked(true);
                     } catch (ActivityNotFoundException err) {
                         Toast t = Toast.makeText(getActivity().getApplicationContext(),
                                 "App is not found", Toast.LENGTH_SHORT);
