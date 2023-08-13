@@ -69,16 +69,19 @@ public class GamepadWebSocketClient {
 
         this.gameProfileNames = new String[]{
             "Blank Profile",
+            "GTA Vice City",
             "Subway Surfers",
             "Tony Hawk 4"
         };
         this.gameProfilePackages = new String[]{
             "none",
+            "com.rockstargames.gtavc",
             "com.kiloo.subwaysurf",
             "epsxe"
         };
         this.gameProfiles = new String[]{
             binding.getRoot().getResources().getString(R.string.blank_profile),
+            binding.getRoot().getResources().getString(R.string.gta_vicecity),
             binding.getRoot().getResources().getString(R.string.subway_surfers),
             binding.getRoot().getResources().getString(R.string.epsxe_thps4)
         };
@@ -142,6 +145,16 @@ public class GamepadWebSocketClient {
         binding.buttonOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Release stuck touch events
+                for (int n = 0; n < 10; n++) {
+                    TouchCommand release = new TouchCommand(n);
+                    TouchEvent up = new TouchEvent(TouchEvent.Type.UP, 360, 800);
+                    release.add(up);
+                    String command = release.toSendeventLine().get(0);
+                    runCommand(command);
+                }
+                // Read data
+                runCommand("ls -h", true);
                 runCommand("sendevent --help", true);
             }
         });
@@ -174,7 +187,6 @@ public class GamepadWebSocketClient {
             private int currentNo = 0;
             @Override
             public void onTextReceived(String s) {
-                Log.i("WebSocket", "Message received");
                 receivedMessages.add(s);
                 try {
                     String[] msg = s.split("\\|");
@@ -184,7 +196,7 @@ public class GamepadWebSocketClient {
                         }
                         else {
                             if (msg[2].startsWith("remote-gamepad-data")) {
-                                startTimer();
+                                //startTimer();
                                 if (Integer.valueOf(msg[3]) < currentNo) return;
 
                                 currentNo = Integer.valueOf(msg[3]);
@@ -503,13 +515,13 @@ public class GamepadWebSocketClient {
             DataOutputStream outputStream = new DataOutputStream(su.getOutputStream());
             outputStream.writeBytes(command+"\n");
             outputStream.flush();
+            Log.i("root", command);
             //su.waitFor();
 
             DataInputStream inputStream = new DataInputStream(su.getInputStream());
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             //su.waitFor();
 
-            StringBuilder log = new StringBuilder();
             String line;
             if (read)
             while ((line = reader.readLine()) != null) {
