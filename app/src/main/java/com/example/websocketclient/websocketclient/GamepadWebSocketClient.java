@@ -324,12 +324,13 @@ public class GamepadWebSocketClient {
                                                 Integer.valueOf(textValue[3]),
                                                 Integer.valueOf(textValue[4]),
                                                 Integer.valueOf(textValue[5]),
-                                                Boolean.valueOf(textValue[6])
+                                                textValue[6],
+                                                textValue[7]
                                         );
                                         for (int k = 0; k < evArray.size(); k++) {
                                             setCommandHistoryText(evArray.get(k), true);
                                             runCommand(evArray.get(k));
-                                            Thread.sleep(Integer.valueOf(textValue[7]));
+                                            Thread.sleep(Integer.valueOf(textValue[8]));
                                         }
                                     }
                                     else if (text.startsWith("drag_connect")) {
@@ -637,7 +638,7 @@ public class GamepadWebSocketClient {
         return defaultProgram ? moveCommand.toSendeventArray() : moveCommand.toSendeventLine();
     }
 
-    public ArrayList<String> circle(int layerNo, int x1, int y1, float radius, int steps, int turns, boolean decrease) {
+    public ArrayList<String> circle(int layerNo, int x1, int y1, float radius, int steps, int turns, String mode, String direction) {
         Point p1 = new Point(x1, y1);
         if (isLandscape) p1 = rotateCoordinates(p1.x, p1.y);
 
@@ -653,9 +654,17 @@ public class GamepadWebSocketClient {
         command.addAll(defaultProgram ? circleCommand.toSendeventArray() : circleCommand.toSendeventLine());
         for (int n = 0; n < (turns*steps); n++) {
             circleCommand = new TouchCommand(layerNo);
-            if (decrease)
+            if (mode.equals("open"))
+            vector.y = p1.y - (radius-(radius-(n*((radius/(steps*turns))))));
+            else if (mode.equals("close"))
             vector.y = p1.y - (radius-(n*((radius/(steps*turns)))));
-            PointF rotation = MathUtils.rotate2d(center, vector, (n*(360/steps)), true);
+
+            PointF rotation = new PointF(0, 0);
+            if (direction.equals("left"))
+            rotation = MathUtils.rotate2d(center, vector, (n*(360/steps)), true);
+            else if (direction.equals("right"))
+
+            rotation = MathUtils.rotate2d(center, vector, -(n*(360/steps)), true);
             TouchEvent move = new TouchEvent(TouchEvent.Type.DOWN, (int) rotation.x, (int) rotation.y);
             circleCommand.add(move);
             command.addAll(defaultProgram ? circleCommand.toSendeventArray() : circleCommand.toSendeventLine());
