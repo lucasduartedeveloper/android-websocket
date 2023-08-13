@@ -11,6 +11,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,13 @@ public class FirstFragment extends Fragment {
     private GamepadWebSocketClient gamepadWebSocketClient;
     private FragmentFirstBinding binding;
 
+
+    private int profileNo;
+    private String[] gameProfileNames;
+    private String[] gameProfiles;
+    private String[] gameProfilePackages;
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentFirstBinding.inflate(inflater, container, false);
@@ -36,6 +44,53 @@ public class FirstFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        this.profileNo = 0;
+
+        this.gameProfileNames = new String[]{
+                "Blank Profile",
+                "GTA Vice City",
+                "Subway Surfers",
+                "Tony Hawk 4"
+        };
+        this.gameProfilePackages = new String[]{
+                "none",
+                "com.rockstargames.gtavc",
+                "com.kiloo.subwaysurf",
+                "epsxe"
+        };
+        this.gameProfiles = new String[]{
+                binding.getRoot().getResources().getString(R.string.blank_profile),
+                binding.getRoot().getResources().getString(R.string.gta_vicecity),
+                binding.getRoot().getResources().getString(R.string.subway_surfers),
+                binding.getRoot().getResources().getString(R.string.epsxe_thps4)
+        };
+
+        binding.gameProfileSelectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                profileNo += 1;
+                profileNo = profileNo > (gameProfiles.length-1) ? 0 : profileNo;
+                binding.gameStartButton.setText(gameProfileNames[profileNo]);
+                binding.gameProfileSettings.setText(gameProfiles[profileNo]);
+            }
+        });
+
+        binding.gameStartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mIntent = getActivity().getPackageManager()
+                        .getLaunchIntentForPackage(gameProfilePackages[profileNo]);
+                if (mIntent != null) {
+                    try {
+                        getActivity().startActivity(mIntent);
+                    } catch (ActivityNotFoundException err) {
+                        Toast t = Toast.makeText(getActivity().getApplicationContext(),
+                                "App is not found", Toast.LENGTH_SHORT);
+                        t.show();
+                    }
+                }
+            }
+        });
 
         binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,9 +101,24 @@ public class FirstFragment extends Fragment {
                 }
                 else {
                     binding.buttonFirst.setText("Starting...");
+                    binding.uiCheckBox.setChecked(true);
                     gamepadWebSocketClient = new GamepadWebSocketClient(binding, getActivity());
                     gamepadWebSocketClient.createWebSocketClient();
                 }
+            }
+        });
+
+        binding.uiCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                binding.buttonOpen.setEnabled(!isChecked);
+                binding.buttonFirst.setEnabled(!isChecked);
+                binding.gameProfileSettings.setEnabled(!isChecked);
+                binding.commandHistory.setEnabled(!isChecked);
+                binding.checkBox.setEnabled(!isChecked);
+                binding.gameStartButton.setEnabled(!isChecked);
+                binding.gameProfileSelectButton.setEnabled(!isChecked);
+                binding.sendeventCheckBox.setEnabled(!isChecked);
             }
         });
     }

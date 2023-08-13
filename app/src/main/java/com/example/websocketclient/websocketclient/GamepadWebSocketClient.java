@@ -39,11 +39,6 @@ public class GamepadWebSocketClient {
 
     private boolean isLandscape;
 
-    private int profileNo;
-    private String[] gameProfileNames;
-    private String[] gameProfiles;
-    private String[] gameProfilePackages;
-
     private int requestNo;
     private ArrayList<String> receivedMessages;
 
@@ -63,75 +58,15 @@ public class GamepadWebSocketClient {
     public GamepadWebSocketClient(FragmentFirstBinding binding, Activity activity) {
         this.activity = activity;
         this.requestNo = 0;
-        this.profileNo = 0;
         this.isLandscape = false;
         this.receivedMessages = new ArrayList<String>();
 
-        this.gameProfileNames = new String[]{
-            "Blank Profile",
-            "GTA Vice City",
-            "Subway Surfers",
-            "Tony Hawk 4"
-        };
-        this.gameProfilePackages = new String[]{
-            "none",
-            "com.rockstargames.gtavc",
-            "com.kiloo.subwaysurf",
-            "epsxe"
-        };
-        this.gameProfiles = new String[]{
-            binding.getRoot().getResources().getString(R.string.blank_profile),
-            binding.getRoot().getResources().getString(R.string.gta_vicecity),
-            binding.getRoot().getResources().getString(R.string.subway_surfers),
-            binding.getRoot().getResources().getString(R.string.epsxe_thps4)
-        };
-
         this.binding = binding;
-        binding.gameProfileSelectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                profileNo += 1;
-                profileNo = profileNo > (gameProfiles.length-1) ? 0 : profileNo;
-                binding.gameStartButton.setText(gameProfileNames[profileNo]);
-                binding.gameProfileSettings.setText(gameProfiles[profileNo]);
-            }
-        });
-
-        binding.gameStartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent mIntent = activity.getPackageManager()
-                        .getLaunchIntentForPackage(gameProfilePackages[profileNo]);
-                if (mIntent != null) {
-                    try {
-                        activity.startActivity(mIntent);
-                    } catch (ActivityNotFoundException err) {
-                        Toast t = Toast.makeText(activity.getApplicationContext(),
-                                "App is not found", Toast.LENGTH_SHORT);
-                        t.show();
-                    }
-                }
-            }
-        });
 
         binding.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 isLandscape = isChecked;
-            }
-        });
-
-        binding.uiCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                binding.buttonOpen.setEnabled(!isChecked);
-                binding.buttonFirst.setEnabled(!isChecked);
-                binding.gameProfileSettings.setEnabled(!isChecked);
-                binding.commandHistory.setEnabled(!isChecked);
-                binding.checkBox.setEnabled(!isChecked);
-                binding.gameStartButton.setEnabled(!isChecked);
-                binding.gameProfileSelectButton.setEnabled(!isChecked);
-                binding.sendeventCheckBox.setEnabled(!isChecked);
             }
         });
 
@@ -238,6 +173,16 @@ public class GamepadWebSocketClient {
                                 }
                             }
                             if (buttons.size() == 0) setGamepadText("");
+
+                            if (buttons.size() == 2) {
+                                String indexes =
+                                    String.valueOf(buttons.get(0).getIndex())+
+                                    String.valueOf(buttons.get(1).getIndex());
+                                if (indexes.contains("8") && indexes.contains("5")) {
+                                    requestSuperuser();
+                                    return;
+                                }
+                            }
 
                             String[] coordinates =
                                     binding.gameProfileSettings.getText().toString().split("\\n");
@@ -396,9 +341,8 @@ public class GamepadWebSocketClient {
 
             @Override
             public void onException(Exception e) {
-                System.out.println(e.getMessage());
-                Log.i("WebSocket", "Message received");
                 setButtonText("Error");
+                System.out.println(e.getMessage());
                 //setListText(e.getMessage(), true);
             }
 
@@ -415,7 +359,7 @@ public class GamepadWebSocketClient {
         };
 
         webSocketClient.setConnectTimeout(5000);
-        webSocketClient.setReadTimeout(60000);
+        webSocketClient.setReadTimeout(180000);
         webSocketClient.enableAutomaticReconnection(5000);
         webSocketClient.connect();
     }

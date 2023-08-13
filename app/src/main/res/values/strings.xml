@@ -11,10 +11,12 @@
         99:down(0,360,800):up(0,360,800):analog(0,360,800,{0},{1},150)\n
         98:down(1,360,800):up(1,360,800):analog(1,360,800,{0},{1},200)\n
         3:open:su#input keyevent KEYCODE_POWER;\n
-        1:open:su#input swipe 355 1300 355 300\n
+        1:open:su#input swipe 355 1300 355 300;\n
+        6:open:su#input tap 565 1355;\n
+        7:open:su#input tap 360 1355;\n
         5:open:su#input motionevent DOWN 140 920;su#input motionevent MOVE 565 920;su#input motionevent MOVE 355 1135;su#input motionevent MOVE 355 1355;su#input motionevent UP 355 1355;\n
         2:open:down(0,140,920);move(0,565,920);move(0,355,1135);move(0,355,1355);up(0,355,1355);\n
-        12:open:circle(0,360,800,300,60,50,none,left,5);\n
+        12:open:circle(0,360,800,300,60,50,none,left,50);\n
         8:open:circle(0,360,800,300,60,3,close,left,5);\n
         9:open:circle(0,360,800,300,60,3,open,right,5);
     </string>
