@@ -160,5 +160,20 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <TextView
+            android:id="@+id/event_count_view"
+            android:layout_width="49dp"
+            android:layout_height="46dp"
+            android:layout_marginEnd="210dp"
+            android:layout_marginBottom="90dp"
+            android:text="0"
+            android:textAlignment="textEnd"
+            android:textColor="#009097"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:typeface="monospace"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

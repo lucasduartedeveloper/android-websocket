@@ -173,6 +173,7 @@ public class GamepadWebSocketClient {
         webSocketClient = new WebSocketClient(uri) {
             GamepadState state = new GamepadState();
 
+            Thread messageThread;
             @Override
             public void onOpen() {
                 Log.i("WebSocket", "Session is starting");
@@ -182,186 +183,200 @@ public class GamepadWebSocketClient {
                 requestSuperuser();
                 pointer = new Point(0, 0);
                 webSocketClient.send("PAPER|android-app|remote-gamepad-attach");
+
+                if (messageThread != null) {
+                    messageThread.stop();
+                    messageThread = null;
+                }
+                messageThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (true) {
+                            try {
+                                if (receivedMessages.size() > 0) {
+                                    String message = receivedMessages.remove(0);
+                                    processMessage(message);
+                                }
+                                //Thread.sleep(100);
+                            }
+                            catch (Exception e) {
+                                setButtonText("Error");
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+                messageThread.start();
             }
 
             private int currentNo = 0;
-            @Override
-            public void onTextReceived(String s) {
-                receivedMessages.add(s);
-                try {
-                    String[] msg = s.split("\\|");
-                    if (!msg[1].startsWith("android-app")) {
-                        if (msg[2].startsWith("remote-gamepad-battery")) {
-                            setBattery(Integer.valueOf(msg[3]));
-                        }
-                        else {
-                            if (msg[2].startsWith("remote-gamepad-data")) {
-                                //startTimer();
-                                if (Integer.valueOf(msg[3]) < currentNo) return;
+            private void processMessage(String s) throws InterruptedException {
+                String[] msg = s.split("\\|");
+                if (!msg[1].startsWith("android-app")) {
+                    if (msg[2].startsWith("remote-gamepad-battery")) {
+                        setBattery(Integer.valueOf(msg[3]));
+                    } else {
+                        if (msg[2].startsWith("remote-gamepad-data")) {
+                            //startTimer();
+                            if (Integer.valueOf(msg[3]) < currentNo) return;
 
-                                currentNo = Integer.valueOf(msg[3]);
-                                state.loadJson(msg[4]);
+                            currentNo = Integer.valueOf(msg[3]);
+                            state.loadJson(msg[4]);
 
-                                ArrayList<GamepadButton> buttons = state.getActiveButtons();
-                                for (int n = 0; n < buttons.size(); n++) {
-                                    if (buttons.get(n).getIndex() < 90)
-                                        setGamepadText("button "+buttons.get(n).getIndex()+": "+buttons.get(n).getValue());
-                                    else {
-                                        BigDecimal x = new BigDecimal(buttons.get(n).getAxis_value()[0])
-                                        .setScale(2, RoundingMode.HALF_EVEN);
-                                        BigDecimal y = new BigDecimal(buttons.get(n).getAxis_value()[1])
-                                        .setScale(2, RoundingMode.HALF_EVEN);
+                            ArrayList<GamepadButton> buttons = state.getActiveButtons();
+                            for (int n = 0; n < buttons.size(); n++) {
+                                if (buttons.get(n).getIndex() < 90)
+                                    setGamepadText("button " + buttons.get(n).getIndex() + ": " + buttons.get(n).getValue());
+                                else {
+                                    BigDecimal x = new BigDecimal(buttons.get(n).getAxis_value()[0])
+                                            .setScale(2, RoundingMode.HALF_EVEN);
+                                    BigDecimal y = new BigDecimal(buttons.get(n).getAxis_value()[1])
+                                            .setScale(2, RoundingMode.HALF_EVEN);
 
-                                        setGamepadText("button " + buttons.get(n).getIndex() + ": " +
-                                        "[" + x + "," + y + "]");
-                                    }
+                                    setGamepadText("button " + buttons.get(n).getIndex() + ": " +
+                                            "[" + x + "," + y + "]");
                                 }
+                            }
+                            if (buttons.size() == 0) setGamepadText("");
 
-                                String[] coordinates =
-                                        binding.gameProfileSettings.getText().toString().split("\\n");
+                            String[] coordinates =
+                                    binding.gameProfileSettings.getText().toString().split("\\n");
 
-                                ArrayList<String> command = state.createCommand(coordinates);
-                                for (int n = 0; n < command.size(); n++) {
-                                    setCommandHistoryText("", false);
-                                    String text = command.get(n);
-                                    if (text.startsWith("drag")) {
-                                        text = text.replace("drag(","");
-                                        text = text.replace(")","");
-                                        String[] textValue = text.split(",");
-                                        ArrayList<String> evArray = drag(
-                                                Integer.valueOf(textValue[0]),
-                                                Integer.valueOf(textValue[1]),
-                                                Integer.valueOf(textValue[2]),
-                                                Integer.valueOf(textValue[3]),
-                                                Integer.valueOf(textValue[4])
-                                        );
-                                        for (int k = 0; k < evArray.size(); k++) {
-                                            setCommandHistoryText(evArray.get(k), true);
-                                            runCommand(evArray.get(k));
-                                        }
+                            ArrayList<String> command = state.createCommand(coordinates);
+                            for (int n = 0; n < command.size(); n++) {
+                                setCommandHistoryText("", false);
+                                String text = command.get(n);
+                                if (text.startsWith("drag")) {
+                                    text = text.replace("drag(", "");
+                                    text = text.replace(")", "");
+                                    String[] textValue = text.split(",");
+                                    ArrayList<String> evArray = drag(
+                                            Integer.valueOf(textValue[0]),
+                                            Integer.valueOf(textValue[1]),
+                                            Integer.valueOf(textValue[2]),
+                                            Integer.valueOf(textValue[3]),
+                                            Integer.valueOf(textValue[4])
+                                    );
+                                    for (int k = 0; k < evArray.size(); k++) {
+                                        setCommandHistoryText(evArray.get(k), false);
+                                        runCommand(evArray.get(k));
                                     }
-                                    else if (text.startsWith("tap")) {
-                                        text = text.replace("tap(","");
-                                        text = text.replace(")","");
-                                        String[] textValue = text.split(",");
-                                        ArrayList<String> evArray = tap(
-                                                Integer.valueOf(textValue[0]),
-                                                Integer.valueOf(textValue[1]),
-                                                Integer.valueOf(textValue[2])
-                                        );
-                                        for (int k = 0; k < evArray.size(); k++) {
-                                            setCommandHistoryText(evArray.get(k), true);
-                                            runCommand(evArray.get(k));
-                                        }
+                                } else if (text.startsWith("tap")) {
+                                    text = text.replace("tap(", "");
+                                    text = text.replace(")", "");
+                                    String[] textValue = text.split(",");
+                                    ArrayList<String> evArray = tap(
+                                            Integer.valueOf(textValue[0]),
+                                            Integer.valueOf(textValue[1]),
+                                            Integer.valueOf(textValue[2])
+                                    );
+                                    for (int k = 0; k < evArray.size(); k++) {
+                                        setCommandHistoryText(evArray.get(k), false);
+                                        runCommand(evArray.get(k));
                                     }
-                                    else if (text.startsWith("move")) {
-                                        text = text.replace("move(","");
-                                        text = text.replace(")","");
-                                        String[] textValue = text.split(",");
-                                        ArrayList<String> evArray = move(
-                                                Integer.valueOf(textValue[0]),
-                                                Integer.valueOf(textValue[1]),
-                                                Integer.valueOf(textValue[2])
-                                        );
-                                        for (int k = 0; k < evArray.size(); k++) {
-                                            setCommandHistoryText(evArray.get(k), true);
-                                            runCommand(evArray.get(k));
-                                        }
+                                } else if (text.startsWith("move")) {
+                                    text = text.replace("move(", "");
+                                    text = text.replace(")", "");
+                                    String[] textValue = text.split(",");
+                                    ArrayList<String> evArray = move(
+                                            Integer.valueOf(textValue[0]),
+                                            Integer.valueOf(textValue[1]),
+                                            Integer.valueOf(textValue[2])
+                                    );
+                                    for (int k = 0; k < evArray.size(); k++) {
+                                        setCommandHistoryText(evArray.get(k), false);
+                                        runCommand(evArray.get(k));
                                     }
-                                    else if (text.startsWith("down")) {
-                                        text = text.replace("down(","");
-                                        text = text.replace(")","");
-                                        String[] textValue = text.split(",");
-                                        ArrayList<String> evArray = down(
-                                                Integer.valueOf(textValue[0]),
-                                                Integer.valueOf(textValue[1]),
-                                                Integer.valueOf(textValue[2])
-                                        );
-                                        for (int k = 0; k < evArray.size(); k++) {
-                                            setCommandHistoryText(evArray.get(k), true);
-                                            runCommand(evArray.get(k));
-                                        }
+                                } else if (text.startsWith("down")) {
+                                    text = text.replace("down(", "");
+                                    text = text.replace(")", "");
+                                    String[] textValue = text.split(",");
+                                    ArrayList<String> evArray = down(
+                                            Integer.valueOf(textValue[0]),
+                                            Integer.valueOf(textValue[1]),
+                                            Integer.valueOf(textValue[2])
+                                    );
+                                    for (int k = 0; k < evArray.size(); k++) {
+                                        setCommandHistoryText(evArray.get(k), false);
+                                        runCommand(evArray.get(k));
                                     }
-                                    else if (text.startsWith("up")) {
-                                        text = text.replace("up(","");
-                                        text = text.replace(")","");
-                                        String[] textValue = text.split(",");
-                                        ArrayList<String> evArray = up(
-                                                Integer.valueOf(textValue[0]),
-                                                Integer.valueOf(textValue[1]),
-                                                Integer.valueOf(textValue[2])
-                                        );
-                                        for (int k = 0; k < evArray.size(); k++) {
-                                            setCommandHistoryText(evArray.get(k), true);
-                                            runCommand(evArray.get(k));
-                                        }
+                                } else if (text.startsWith("up")) {
+                                    text = text.replace("up(", "");
+                                    text = text.replace(")", "");
+                                    String[] textValue = text.split(",");
+                                    ArrayList<String> evArray = up(
+                                            Integer.valueOf(textValue[0]),
+                                            Integer.valueOf(textValue[1]),
+                                            Integer.valueOf(textValue[2])
+                                    );
+                                    for (int k = 0; k < evArray.size(); k++) {
+                                        setCommandHistoryText(evArray.get(k), false);
+                                        runCommand(evArray.get(k));
                                     }
-                                    else if (text.startsWith("analog")) {
-                                        text = text.replace("analog(","");
-                                        text = text.replace(")","");
-                                        String[] textValue = text.split(",");
-                                        ArrayList<String> evArray = analog(
-                                                Integer.valueOf(textValue[0]),
-                                                Integer.valueOf(textValue[1]),
-                                                Integer.valueOf(textValue[2]),
-                                                Float.valueOf(textValue[3]),
-                                                Float.valueOf(textValue[4]),
-                                                Integer.valueOf(textValue[5])
-                                        );
-                                        for (int k = 0; k < evArray.size(); k++) {
-                                            setCommandHistoryText(evArray.get(k), true);
-                                            runCommand(evArray.get(k));
-                                        }
+                                } else if (text.startsWith("analog")) {
+                                    text = text.replace("analog(", "");
+                                    text = text.replace(")", "");
+                                    String[] textValue = text.split(",");
+                                    ArrayList<String> evArray = analog(
+                                            Integer.valueOf(textValue[0]),
+                                            Integer.valueOf(textValue[1]),
+                                            Integer.valueOf(textValue[2]),
+                                            Float.valueOf(textValue[3]),
+                                            Float.valueOf(textValue[4]),
+                                            Integer.valueOf(textValue[5])
+                                    );
+                                    for (int k = 0; k < evArray.size(); k++) {
+                                        setCommandHistoryText(evArray.get(k), false);
+                                        runCommand(evArray.get(k));
                                     }
-                                    else if (text.startsWith("circle")) {
-                                        text = text.replace("circle(","");
-                                        text = text.replace(")","");
-                                        String[] textValue = text.split(",");
-                                        ArrayList<String> evArray = circle(
-                                                Integer.valueOf(textValue[0]),
-                                                Integer.valueOf(textValue[1]),
-                                                Integer.valueOf(textValue[2]),
-                                                Integer.valueOf(textValue[3]),
-                                                Integer.valueOf(textValue[4]),
-                                                Integer.valueOf(textValue[5]),
-                                                textValue[6],
-                                                textValue[7]
-                                        );
-                                        for (int k = 0; k < evArray.size(); k++) {
-                                            setCommandHistoryText(evArray.get(k), true);
-                                            runCommand(evArray.get(k));
-                                            Thread.sleep(Integer.valueOf(textValue[8]));
-                                        }
+                                } else if (text.startsWith("circle")) {
+                                    text = text.replace("circle(", "");
+                                    text = text.replace(")", "");
+                                    String[] textValue = text.split(",");
+                                    ArrayList<String> evArray = circle(
+                                            Integer.valueOf(textValue[0]),
+                                            Integer.valueOf(textValue[1]),
+                                            Integer.valueOf(textValue[2]),
+                                            Integer.valueOf(textValue[3]),
+                                            Integer.valueOf(textValue[4]),
+                                            Integer.valueOf(textValue[5]),
+                                            textValue[6],
+                                            textValue[7]
+                                    );
+                                    for (int k = 0; k < evArray.size(); k++) {
+                                        setCommandHistoryText(evArray.get(k), false);
+                                        runCommand(evArray.get(k));
+                                        Thread.sleep(Integer.valueOf(textValue[8]));
                                     }
-                                    else if (text.startsWith("drag_connect")) {
-                                        text = text.replace("drag_connect(","");
-                                        text = text.replace(")","");
-                                        String[] textValue = text.split(",");
-                                        ArrayList<String> evArray = drag_connect(
-                                                Integer.valueOf(textValue[0]),
-                                                Integer.valueOf(textValue[1]),
-                                                Integer.valueOf(textValue[2]),
-                                                Integer.valueOf(textValue[3]),
-                                                Integer.valueOf(textValue[4])
-                                        );
-                                        for (int k = 0; k < evArray.size(); k++) {
-                                            setCommandHistoryText(evArray.get(k), true);
-                                            runCommand(evArray.get(k));
-                                        }
+                                } else if (text.startsWith("drag_connect")) {
+                                    text = text.replace("drag_connect(", "");
+                                    text = text.replace(")", "");
+                                    String[] textValue = text.split(",");
+                                    ArrayList<String> evArray = drag_connect(
+                                            Integer.valueOf(textValue[0]),
+                                            Integer.valueOf(textValue[1]),
+                                            Integer.valueOf(textValue[2]),
+                                            Integer.valueOf(textValue[3]),
+                                            Integer.valueOf(textValue[4])
+                                    );
+                                    for (int k = 0; k < evArray.size(); k++) {
+                                        setCommandHistoryText(evArray.get(k), false);
+                                        runCommand(evArray.get(k));
                                     }
-                                    else if (text.startsWith("su#")) {
-                                        text = text.replace("su#","");
-                                        setCommandHistoryText(text, true);
-                                        runCommand(text);
-                                    }
+                                } else if (text.startsWith("su#")) {
+                                    text = text.replace("su#", "");
+                                    setCommandHistoryText(text, false);
+                                    runCommand(text);
                                 }
                             }
                         }
                     }
-                } catch (Exception e) {
-                    setButtonText("Error");
-                    e.printStackTrace();
                 }
+            }
+
+            @Override
+            public void onTextReceived(String s) {
+                receivedMessages.add(s);
             }
 
             private void runOnUiThread(Runnable runnable) {
@@ -511,6 +526,17 @@ public class GamepadWebSocketClient {
         });
     }
 
+    private int eventCount = 0;
+
+    private void setEventCount(String text) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                binding.eventCountView.setText(text);
+            }
+        });
+    }
+
     boolean released;
     private Point pointer;
     private Process su;
@@ -536,6 +562,8 @@ public class GamepadWebSocketClient {
             outputStream.writeBytes(command+"\n");
             outputStream.flush();
             Log.i("root", command);
+            setEventCount(String.valueOf(eventCount));
+            eventCount += 1;
             //su.waitFor();
 
             DataInputStream inputStream = new DataInputStream(su.getInputStream());
@@ -652,7 +680,7 @@ public class GamepadWebSocketClient {
         TouchEvent down = new TouchEvent(TouchEvent.Type.DOWN, (int) vector.x, (int) vector.y);
         circleCommand.add(down);
         command.addAll(defaultProgram ? circleCommand.toSendeventArray() : circleCommand.toSendeventLine());
-        for (int n = 0; n < (turns*steps); n++) {
+        for (int n = 0; n < ((turns*steps)+1); n++) {
             circleCommand = new TouchCommand(layerNo);
             if (mode.equals("open"))
             vector.y = p1.y - (radius-(radius-(n*((radius/(steps*turns))))));
