@@ -1,13 +1,17 @@
 package com.example.websocketclient;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,13 +19,19 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.websocketclient.databinding.FragmentFirstBinding;
 import com.example.websocketclient.websocketclient.GamepadWebSocketClient;
+import com.example.websocketclient.websocketclient.common.TouchCommand;
+import com.example.websocketclient.websocketclient.common.TouchEvent;
 import com.example.websocketclient.websocketclient.service.FloatingViewService;
 import com.example.websocketclient.websocketclient.service.FloatingWidgetShowService;
 import com.example.websocketclient.websocketclient.service.FloatingWindowService;
+
+import java.lang.reflect.Method;
+import java.util.Set;
 
 public class FirstFragment extends Fragment {
 
@@ -120,6 +130,29 @@ public class FirstFragment extends Fragment {
                 binding.gameStartButton.setEnabled(!isChecked);
                 binding.gameProfileSelectButton.setEnabled(!isChecked);
                 binding.sendeventCheckBox.setEnabled(!isChecked);
+            }
+        });
+
+        binding.buttonOpen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) throws SecurityException {
+                // Release stuck touch events
+                try {
+                    BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
+                    Set<BluetoothDevice> devices = btAdapter.getBondedDevices();
+                    BluetoothDevice device = null;
+                    for (int n = 0; n < devices.size(); n++) {
+                        device = (BluetoothDevice) devices.toArray()[n];
+                        Log.i("bt_device", device.getName());
+                    }
+                    if (devices.size() > 0) {
+                        Method m = devices.getClass().getClass().getMethod("setAlias", String.class);
+                        m.invoke(device, "X3");
+                    }
+                }
+                catch (Exception e) {
+                    Log.i("rename_bt", e.getMessage());
+                }
             }
         });
     }

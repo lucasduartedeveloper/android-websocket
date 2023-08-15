@@ -76,23 +76,6 @@ public class GamepadWebSocketClient {
                 defaultProgram = !isChecked;
             }
         });
-
-        binding.buttonOpen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Release stuck touch events
-                for (int n = 0; n < 10; n++) {
-                    TouchCommand release = new TouchCommand(n);
-                    TouchEvent up = new TouchEvent(TouchEvent.Type.UP, 360, 800);
-                    release.add(up);
-                    String command = release.toSendeventLine().get(0);
-                    runCommand(command);
-                }
-                // Read data
-                runCommand("ls -h", true);
-                runCommand("sendevent --help", true);
-            }
-        });
     }
 
     public void createWebSocketClient() {
